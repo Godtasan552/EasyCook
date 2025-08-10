@@ -1,3 +1,1 @@
-# easycook
-
-A new Flutter project.
+# EasyCook
