@@ -5,6 +5,70 @@ import '../models/meal.dart';
 class DetailPage extends StatelessWidget {
   const DetailPage({super.key});
 
+  // Function to parse instructions into steps
+  List<String> _parseInstructions(String instructions) {
+    // Split by common step indicators
+    List<String> steps = [];
+    
+    // Try to split by numbered steps first (1., 2., etc.)
+    List<String> numberedSteps = instructions.split(RegExp(r'\d+\.'));
+    if (numberedSteps.length > 2) {
+      // Remove first empty element and clean up
+      numberedSteps.removeAt(0);
+      return numberedSteps
+          .map((step) => step.trim())
+          .where((step) => step.isNotEmpty)
+          .toList();
+    }
+    
+    // Try to split by sentences ending with periods
+    List<String> sentences = instructions
+        .split(RegExp(r'\.(?=\s[A-Z]|\s*$)'))
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toList();
+    
+    if (sentences.length > 1) {
+      return sentences.map((s) => s.endsWith('.') ? s : '$s.').toList();
+    }
+    
+    // If no clear separation, try to split by line breaks
+    List<String> lines = instructions
+        .split(RegExp(r'\r?\n'))
+        .map((line) => line.trim())
+        .where((line) => line.isNotEmpty)
+        .toList();
+    
+    if (lines.length > 1) {
+      return lines;
+    }
+    
+    // If still no separation, split by length (every ~100-150 characters at sentence boundaries)
+    if (instructions.length > 150) {
+      List<String> chunks = [];
+      List<String> words = instructions.split(' ');
+      String currentChunk = '';
+      
+      for (String word in words) {
+        if (currentChunk.length + word.length > 120 && currentChunk.isNotEmpty) {
+          chunks.add(currentChunk.trim());
+          currentChunk = word;
+        } else {
+          currentChunk += (currentChunk.isEmpty ? '' : ' ') + word;
+        }
+      }
+      
+      if (currentChunk.isNotEmpty) {
+        chunks.add(currentChunk.trim());
+      }
+      
+      return chunks;
+    }
+    
+    // Default: return as single step
+    return [instructions];
+  }
+
   @override
   Widget build(BuildContext context) {
     final Meal meal = Get.arguments as Meal;
@@ -250,7 +314,7 @@ class DetailPage extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Instructions Section
+            // Instructions Section with Steps
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
@@ -258,34 +322,12 @@ class DetailPage extends StatelessWidget {
                 children: [
                   _buildSectionHeader(
                     title: "วิธีทำ",
-                    subtitle: "คำแนะนำการทำอาหาร",
+                    subtitle: "ขั้นตอนการทำอาหาร",
                     icon: Icons.restaurant_menu,
                     color: Colors.orange[600]!,
                   ),
                   const SizedBox(height: 12),
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      meal.strInstructions,
-                      style: TextStyle(
-                        fontSize: 14,
-                        height: 1.6,
-                        color: textPrimary,
-                      ),
-                    ),
-                  ),
+                  _buildStepsSection(meal.strInstructions, primaryColor, textPrimary, cardColor),
                 ],
               ),
             ),
@@ -349,6 +391,104 @@ class DetailPage extends StatelessWidget {
             const SizedBox(height: 24),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildStepsSection(String instructions, Color primaryColor, Color textPrimary, Color cardColor) {
+    final steps = _parseInstructions(instructions);
+    
+    return Container(
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: List.generate(steps.length, (index) {
+          final step = steps[index];
+          final isLast = index == steps.length - 1;
+          final stepNumber = index + 1;
+          
+          return Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: !isLast
+                  ? Border(
+                      bottom: BorderSide(
+                        color: Colors.grey[200]!,
+                        width: 1,
+                      ),
+                    )
+                  : null,
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Step number badge
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: primaryColor,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: primaryColor.withOpacity(0.3),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text(
+                      '$stepNumber',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                
+                // Step content
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'ขั้นตอนที่ $stepNumber',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: primaryColor,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        step,
+                        style: TextStyle(
+                          fontSize: 14,
+                          height: 1.5,
+                          color: textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
       ),
     );
   }
