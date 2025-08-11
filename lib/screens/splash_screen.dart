@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../utils/navigation_helper.dart';
+import 'package:get/get.dart';  // เพิ่ม GetX
+import '../routers/app_routes.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -25,36 +26,27 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _initAnimations() {
-    // Logo animation controller
     _logoController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-
-    // Text animation controller
     _textController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-
-    // Logo animations
     _logoScaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _logoController, curve: Curves.elasticOut),
     );
-
     _logoOpacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _logoController,
         curve: const Interval(0.0, 0.7, curve: Curves.easeOut),
       ),
     );
-
-    // Text animations
     _textOpacityAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
     ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeOut));
-
     _textSlideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
@@ -62,47 +54,35 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _startSplashSequence() async {
-    // เริ่ม logo animation
     _logoController.forward();
-
-    // รอ 800ms แล้วเริ่ม text animation
     await Future.delayed(const Duration(milliseconds: 800));
     _textController.forward();
 
-    // รอให้ animation เสร็จ แล้วตรวจสอบสถานะผู้ใช้
-    await Future.delayed(const Duration(milliseconds: 2200));
-    _checkUserStatus();
+    // ลดเวลาให้สั้นลง (2 วินาที)
+    await Future.delayed(const Duration(milliseconds: 2000));
+
+    // ไปหน้า BkkScreen แทน
+    Get.offAllNamed(AppRoutes.BKK);
   }
 
+
   Future<void> _checkUserStatus() async {
-    try {
-      // จำลองการตรวจสอบสถานะผู้ใช้
-      // ในอนาคตอาจตรวจสอบจาก SharedPreferences หรือ Secure Storage
-      await Future.delayed(const Duration(milliseconds: 500));
+    print('Checking user status...');
 
-      // ตรวจสอบว่าผู้ใช้เคยล็อกอินหรือไม่
-      final isLoggedIn = await _checkLoginStatus();
+    final isLoggedIn = await _checkLoginStatus();
+    print('isLoggedIn: $isLoggedIn');
 
-      if (isLoggedIn) {
-        // ถ้าล็อกอินแล้ว ไปหน้า Home (ถ้ามี)
-        // NavigationHelper.toHome(clearStack: true);
-
-        // ปัจจุบันยังไม่มีหน้า Home ดังนั้นไปหน้า Login ก่อน
-        NavigationHelper.offAllNamed('/login');
-      } else {
-        // ถ้ายังไม่ล็อกอิน ไปหน้า Login
-        NavigationHelper.offAllNamed('/login');
-      }
-    } catch (e) {
-      // ถ้าเกิดข้อผิดพลาด ไปหน้า Login
-      NavigationHelper.offAllNamed('/login');
+    if (isLoggedIn) {
+      // เปลี่ยนเป็นหน้า Home ถ้ามี
+      Get.offAllNamed('/home');
+    } else {
+      Get.offAllNamed('/login');
     }
   }
 
   Future<bool> _checkLoginStatus() async {
-    // จำลองการตรวจสอบ token หรือสถานะล็อกอิน
-    // return await StorageService.hasValidToken();
-    return false; // ปัจจุบันไม่มีการจัดเก็บ state
+    await Future.delayed(const Duration(milliseconds: 500));
+    return false; // ปรับตามระบบ login จริง
   }
 
   @override
@@ -127,12 +107,10 @@ class _SplashScreenState extends State<SplashScreen>
         child: SafeArea(
           child: Column(
             children: [
-              // Main Content
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Logo Animation
                     AnimatedBuilder(
                       animation: _logoController,
                       builder: (context, child) {
@@ -164,10 +142,7 @@ class _SplashScreenState extends State<SplashScreen>
                         );
                       },
                     ),
-
                     const SizedBox(height: 40),
-
-                    // App Title Animation
                     AnimatedBuilder(
                       animation: _textController,
                       builder: (context, child) {
@@ -207,10 +182,7 @@ class _SplashScreenState extends State<SplashScreen>
                         );
                       },
                     ),
-
                     const SizedBox(height: 60),
-
-                    // Loading Indicator
                     AnimatedBuilder(
                       animation: _textController,
                       builder: (context, child) {
@@ -245,8 +217,6 @@ class _SplashScreenState extends State<SplashScreen>
                   ],
                 ),
               ),
-
-              // Footer
               AnimatedBuilder(
                 animation: _textController,
                 builder: (context, child) {
