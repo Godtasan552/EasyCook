@@ -1,3 +1,4 @@
+import 'package:easycook/screens/detail.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -82,7 +83,7 @@ class HomeScreen extends StatelessWidget {
                     return MealCard(
                       meal: meal,
                       onTap: () {
-                        Get.toNamed('/meal-detail', arguments: meal);
+                        Get.to(DetailPage(), arguments: meal);
                       },
                     );
                   },
