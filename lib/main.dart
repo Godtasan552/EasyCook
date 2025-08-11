@@ -1,40 +1,51 @@
+import 'package:easycook/routers/app_pages.dart';
+import 'package:easycook/routers/app_routes.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:provider/provider.dart';
-import 'package:hive/hive.dart';
-
+import 'package:get/get.dart';
 import 'theme/app_theme.dart';
-import 'routers/app_router.dart';
-import 'controllers/auth_controller.dart';
-import 'controllers/meal_controller.dart';
-import 'controllers/user_controller.dart';
-import 'services/storage_service.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  final dir = await getApplicationDocumentsDirectory();
-  Hive.init(dir.path);
-  await StorageService().init(); // open boxes
-  runApp(const EasyCookApp());
+void main() {
+  runApp(const MainApp());
 }
 
-class EasyCookApp extends StatelessWidget {
-  const EasyCookApp({super.key});
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthController()),
-        ChangeNotifierProvider(create: (_) => UserController()),
-        ChangeNotifierProvider(create: (_) => MealController()),
-      ],
-      child: MaterialApp(
-        title: 'EasyCook',
-        theme: AppTheme.light(),
-        initialRoute: AppRouter.login,
-        onGenerateRoute: AppRouter.generateRoute,
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Form Validate App',
+
+      // กำหนด initial route เป็น Splash Screen
+      initialRoute: AppRoutes.SPLASH,
+
+      // กำหนด pages และ routes
+      getPages: AppPages.routes,
+
+      // กำหนด route ที่ไม่พบ
+      unknownRoute: GetPage(
+        name: '/notfound',
+        page: () => Scaffold(
+          appBar: AppBar(title: const Text('Page Not Found')),
+          body: const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 64, color: Colors.red),
+                SizedBox(height: 16),
+                Text(
+                  'Page Not Found',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8),
+                Text('The page you are looking for does not exist.'),
+              ],
+            ),
+          ),
+        ),
       ),
+      theme: AppTheme.LightTheme,
     );
   }
 }
