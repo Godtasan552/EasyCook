@@ -11,37 +11,125 @@ class DetailPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(meal.strMeal),
+        title: Text(
+          meal.strMeal,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
+        ),
+        backgroundColor: Colors.deepOrangeAccent,
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // รูปภาพอาหาร
             ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(meal.strMealThumb),
+              borderRadius: BorderRadius.circular(20),
+              child: Image.network(
+                meal.strMealThumb,
+                width: double.infinity,
+                height: 220,
+                fit: BoxFit.cover,
+              ),
             ),
-            const SizedBox(height: 16),
+
+            const SizedBox(height: 24),
 
             // ส่วนผสม
             const Text(
-              "ingredient",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              "ส่วนผสม (Ingredients)",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.deepOrangeAccent,
+              ),
             ),
-            const SizedBox(height: 8),
-            ...meal.ingredients.map((ing) => Text("• $ing")).toList(),
+            const Divider(
+              thickness: 2,
+              color: Colors.deepOrangeAccent,
+              endIndent: 200,
+            ),
+            const SizedBox(height: 12),
 
-            const SizedBox(height: 16),
+            Card(
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              color: Colors.orange.shade50,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: meal.ingredients
+                      .map(
+                        (ing) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.check_circle_outline,
+                                color: Colors.deepOrangeAccent,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  ing,
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 32),
 
             // วิธีทำ
             const Text(
-              "method",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              "วิธีทำ (Method)",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.deepOrangeAccent,
+              ),
             ),
-            const SizedBox(height: 8),
-            Text(meal.strInstructions),
+            const Divider(
+              thickness: 2,
+              color: Colors.deepOrangeAccent,
+              endIndent: 260,
+            ),
+            const SizedBox(height: 12),
+
+            Card(
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              color: Colors.orange.shade50,
+              child: Padding(
+                padding: const EdgeInsets.all(14.0),
+                child: Text(
+                  meal.strInstructions,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    height: 1.5,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
           ],
         ),
       ),
