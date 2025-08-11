@@ -34,24 +34,30 @@ class MealDetail {
   });
 
   factory MealDetail.fromJson(Map<String, dynamic> json) {
-    List<String?> ingredients = [];
-    List<String?> measures = [];
-    for (int i = 1; i <= 20; i++) {
-      ingredients.add(json['strIngredient$i']);
-      measures.add(json['strMeasure$i']);
-    }
+    List<String?> ing = List.generate(20, (i) {
+      final v = json['strIngredient${i + 1}'];
+      if (v == null) return null;
+      final s = v.toString().trim();
+      return s.isEmpty ? null : s;
+    });
+    List<String?> measures = List.generate(20, (i) {
+      final v = json['strMeasure${i + 1}'];
+      if (v == null) return null;
+      final s = v.toString().trim();
+      return s.isEmpty ? null : s;
+    });
 
     return MealDetail(
-      idMeal: json['idMeal'],
-      strMeal: json['strMeal'],
+      idMeal: json['idMeal'] ?? '',
+      strMeal: json['strMeal'] ?? '',
       strMealAlternate: json['strMealAlternate'],
-      strCategory: json['strCategory'],
-      strArea: json['strArea'],
-      strInstructions: json['strInstructions'],
-      strMealThumb: json['strMealThumb'],
+      strCategory: json['strCategory'] ?? '',
+      strArea: json['strArea'] ?? '',
+      strInstructions: json['strInstructions'] ?? '',
+      strMealThumb: json['strMealThumb'] ?? '',
       strTags: json['strTags'],
       strYoutube: json['strYoutube'],
-      strIngredients: ingredients,
+      strIngredients: ing,
       strMeasures: measures,
       strSource: json['strSource'],
       strImageSource: json['strImageSource'],
@@ -61,7 +67,7 @@ class MealDetail {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {
+    final m = {
       'idMeal': idMeal,
       'strMeal': strMeal,
       'strMealAlternate': strMealAlternate,
@@ -76,12 +82,10 @@ class MealDetail {
       'strCreativeCommonsConfirmed': strCreativeCommonsConfirmed,
       'dateModified': dateModified,
     };
-
-    for (int i = 0; i < 20; i++) {
-      data['strIngredient${i + 1}'] = strIngredients[i];
-      data['strMeasure${i + 1}'] = strMeasures[i];
+    for (var i = 0; i < strIngredients.length; i++) {
+      m['strIngredient${i + 1}'] = strIngredients[i];
+      m['strMeasure${i + 1}'] = strMeasures[i];
     }
-
-    return data;
+    return m;
   }
 }
