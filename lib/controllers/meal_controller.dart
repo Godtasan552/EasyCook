@@ -13,13 +13,62 @@ class MealController extends GetxController {
   var loading = false.obs;
 
   /// ค้นหาอาหารที่มีส่วนผสมทุกตัวใน ingredients และกรอง excludeIngredients
-  Future<void> searchMeals(List<String> ingredients, List<String> excludeIngredients) async {
-    await _performSearch(ingredients, excludeIngredients);
+  Future<void> searchMealsByIngredients(
+    List<String> ingredients, 
+    List<String> excludeIngredients,
+    {String? category}
+  ) async {
+    await _performSearch(ingredients, excludeIngredients, category: category);
+  }
+
+  /// ค้นหาอาหารด้วยชื่อ
+  Future<void> searchMealsByName(
+    String name,
+    List<String> excludeIngredients,
+    {String? category}
+  ) async {
+    loading.value = true;
+    
+    try {
+      List<Meal> searchResults = await _apiService.searchMealsByName(name);
+      
+      // กรองอาหารแพ้
+      if (excludeIngredients.isNotEmpty) {
+        final excludeLower = excludeIngredients.map((e) => e.toLowerCase().trim()).toList();
+        
+        searchResults = searchResults.where((meal) {
+          return !meal.ingredients.any(
+            (ing) => excludeLower.any((ex) => ing.toLowerCase().trim().contains(ex)),
+          );
+        }).toList();
+      }
+      
+      // กรองตามหมวดหมู่
+      if (category != null && category != 'all') {
+        searchResults = searchResults.where((meal) {
+          return meal.strCategory?.toLowerCase() == category.toLowerCase();
+        }).toList();
+      }
+      
+      meals.value = searchResults;
+    } catch (e) {
+      meals.value = [];
+      Get.snackbar(
+        'Error',
+        'ไม่สามารถค้นหาเมนูได้: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red[600],
+        colorText: Colors.white,
+      );
+    } finally {
+      loading.value = false;
+    }
   }
 
   Future<void> _performSearch(
     List<String> ingredients,
     List<String> excludeIngredients,
+    {String? category}
   ) async {
     loading.value = true;
 
@@ -65,6 +114,13 @@ class MealController extends GetxController {
         }).toList();
       }
 
+      // กรองตามหมวดหมู่
+      if (category != null && category != 'all') {
+        intersectMeals = intersectMeals.where((meal) {
+          return meal.strCategory?.toLowerCase() == category.toLowerCase();
+        }).toList();
+      }
+
       meals.value = intersectMeals;
     } catch (e) {
       meals.value = [];
@@ -94,20 +150,101 @@ class MealController extends GetxController {
     }
   }
 
-  /// สุ่มเมนูอาหารหลายรายการ (ไม่ซ้ำ) พร้อมกรองอาหารแพ้
+  /// สุ่มเมนูอาหารหลายรายการ (ไม่ซ้ำ) พร้อมกรองอาหารแพ้และหมวดหมู่
   Future<void> loadMultipleRandomMeals({
     int count = 5,
     List<String>? excludeIngredients,
+    String? category,
   }) async {
     loading.value = true;
     meals.clear();
 
     try {
-      final List<Meal> randomMeals = [];
-      final Set<String> usedMealIds = {};
+      if (category != null && category != 'all') {
+        // ถ้าเลือกหมวดหมู่ ใช้วิธีค้นหาจากหมวดหมู่แล้วสุ่ม
+        await _loadRandomMealsByCategory(
+          category: category,
+          count: count,
+          excludeIngredients: excludeIngredients ?? [],
+        );
+      } else {
+        // ถ้าเป็น "ทั้งหมด" ใช้วิธีสุ่มทั่วไป
+        await _loadRandomMealsGeneral(
+          count: count,
+          excludeIngredients: excludeIngredients ?? [],
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'ไม่สามารถโหลดเมนูสุ่มได้: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red[600],
+        colorText: Colors.white,
+      );
+    } finally {
+      loading.value = false;
+    }
+  }
 
-      for (int i = 0; i < count;) {
-        final response = await http.get(Uri.parse('https://www.themealdb.com/api/json/v1/1/random.php'));
+  /// สุ่มเมนูจากหมวดหมู่เฉพาะ
+  Future<void> _loadRandomMealsByCategory({
+    required String category,
+    required int count,
+    required List<String> excludeIngredients,
+  }) async {
+    try {
+      // ดึงรายการอาหารจากหมวดหมู่
+      List<Meal> categoryMeals = await _apiService.searchMealsByCategory(category);
+      
+      if (categoryMeals.isEmpty) {
+        meals.value = [];
+        return;
+      }
+      
+      // กรองอาหารแพ้
+      if (excludeIngredients.isNotEmpty) {
+        final excludeLower = excludeIngredients.map((e) => e.toLowerCase().trim()).toList();
+        
+        categoryMeals = categoryMeals.where((meal) {
+          return !meal.ingredients.any(
+            (ing) => excludeLower.any((ex) => ing.toLowerCase().trim().contains(ex)),
+          );
+        }).toList();
+      }
+      
+      // สุ่มเลือก
+      categoryMeals.shuffle();
+      final selectedMeals = categoryMeals.take(count).toList();
+      
+      meals.addAll(selectedMeals);
+    } catch (e) {
+      print('Error loading random meals by category: $e');
+      // ถ้าเกิดข้อผิดพลาด ลองใช้วิธีสุ่มทั่วไป
+      await _loadRandomMealsGeneral(
+        count: count,
+        excludeIngredients: excludeIngredients,
+      );
+    }
+  }
+
+  /// สุ่มเมนูแบบทั่วไป
+  Future<void> _loadRandomMealsGeneral({
+    required int count,
+    required List<String> excludeIngredients,
+  }) async {
+    final List<Meal> randomMeals = [];
+    final Set<String> usedMealIds = {};
+    int attempts = 0;
+    final maxAttempts = count * 10; // จำกัดจำนวนครั้งที่พยายาม
+
+    for (int i = 0; i < count && attempts < maxAttempts;) {
+      attempts++;
+      
+      try {
+        final response = await http.get(
+          Uri.parse('https://www.themealdb.com/api/json/v1/1/random.php')
+        );
 
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
@@ -118,7 +255,7 @@ class MealController extends GetxController {
 
             if (!usedMealIds.contains(meal.idMeal)) {
               bool hasAllergen = false;
-              if (excludeIngredients != null && excludeIngredients.isNotEmpty) {
+              if (excludeIngredients.isNotEmpty) {
                 for (String allergen in excludeIngredients) {
                   if (meal.ingredients.any(
                     (ingredient) => ingredient.toLowerCase().contains(allergen.toLowerCase()),
@@ -137,23 +274,12 @@ class MealController extends GetxController {
             }
           }
         }
-
-        // ป้องกันลูปไม่รู้จบ
-        if (i > count * 5) break;
+      } catch (e) {
+        print('Error fetching random meal: $e');
       }
-
-      meals.addAll(randomMeals);
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'ไม่สามารถโหลดเมนูสุ่มได้: $e',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red[600],
-        colorText: Colors.white,
-      );
-    } finally {
-      loading.value = false;
     }
+
+    meals.addAll(randomMeals);
   }
 
   void clearMeals() {

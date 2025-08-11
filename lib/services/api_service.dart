@@ -143,4 +143,64 @@ class ApiService {
       throw Exception('Failed to search meals: $e');
     }
   }
+
+  /// ค้นหาเมนูตามหมวดหมู่
+  Future<List<Meal>> searchMealsByCategory(String category) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/filter.php?c=${Uri.encodeComponent(category)}'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['meals'] == null) return [];
+
+        List mealsBrief = data['meals'];
+        List<Meal> fullMeals = [];
+
+        // ดึงรายละเอียดเมนูทั้งหมด (จำกัดจำนวนเพื่อประสิทธิภาพ)
+        final maxMeals = mealsBrief.length > 50 ? 50 : mealsBrief.length;
+        
+        for (int i = 0; i < maxMeals; i++) {
+          try {
+            final detail = await fetchMealDetail(mealsBrief[i]['idMeal']);
+            if (detail != null) {
+              fullMeals.add(detail);
+            }
+          } catch (e) {
+            print('Error fetching meal detail for ${mealsBrief[i]['idMeal']}: $e');
+            continue;
+          }
+        }
+        return fullMeals;
+      }
+      throw Exception('Failed to search meals by category: ${response.statusCode}');
+    } catch (e) {
+      print('Error searching meals by category: $e');
+      throw Exception('Failed to search meals: $e');
+    }
+  }
+
+  /// ดึงรายชื่อหมวดหมู่ทั้งหมด (สำหรับอนาคต)
+  Future<List<String>> fetchCategories() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/categories.php'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['categories'] != null) {
+          List categories = data['categories'];
+          return categories
+              .map((cat) => cat['strCategory'] as String)
+              .toList();
+        }
+      }
+      return [];
+    } catch (e) {
+      print('Error fetching categories: $e');
+      return [];
+    }
+  }
 }
