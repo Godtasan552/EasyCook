@@ -18,7 +18,8 @@ dependencies:
   intl: ^0.20.2
   cached_network_image: ^3.2.3
   hive: ^2.2.3
-
+  cupertino_icons: ^1.0.2
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

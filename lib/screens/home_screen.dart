@@ -1,9 +1,11 @@
+// screens/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:easycook/screens/detail.dart';
 import '../controllers/meal_controller.dart';
 import '../widgets/meal_card.dart';
 import '../models/meal.dart';
+import '../services/translation_service.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -30,17 +32,37 @@ class _HomeScreenState extends State<HomeScreen> {
   final Color textPrimary = Color(0xFF1A202C);
   final Color textSecondary = Color(0xFF64748B);
 
-  final List<String> categories = [
-    'All', 'Beef', 'Chicken', 'Dessert', 'Lamb', 'Miscellaneous', 
-    'Pasta', 'Pork', 'Seafood', 'Side', 'Starter', 'Vegan', 'Vegetarian'
+  // Categories and Areas with translation keys
+  final List<Map<String, String>> categories = [
+    {'key': 'all', 'value': 'All'},
+    {'key': 'beef', 'value': 'Beef'},
+    {'key': 'chicken', 'value': 'Chicken'},
+    {'key': 'dessert', 'value': 'Dessert'},
+    {'key': 'lamb', 'value': 'Lamb'},
+    {'key': 'miscellaneous', 'value': 'Miscellaneous'},
+    {'key': 'pasta', 'value': 'Pasta'},
+    {'key': 'pork', 'value': 'Pork'},
+    {'key': 'seafood', 'value': 'Seafood'},
+    {'key': 'side', 'value': 'Side'},
+    {'key': 'starter', 'value': 'Starter'},
+    {'key': 'vegan', 'value': 'Vegan'},
+    {'key': 'vegetarian', 'value': 'Vegetarian'},
   ];
   
-  final List<String> areas = [
-    'All', 'American', 'British', 'Canadian', 'Chinese', 'Croatian', 
-    'Dutch', 'Egyptian', 'French', 'Greek', 'Indian', 'Irish', 'Italian', 
-    'Jamaican', 'Japanese', 'Kenyan', 'Malaysian', 'Mexican', 'Moroccan', 
-    'Polish', 'Portuguese', 'Russian', 'Spanish', 'Thai', 'Tunisian', 
-    'Turkish', 'Vietnamese'
+  final List<Map<String, String>> areas = [
+    {'key': 'all', 'value': 'All'},
+    {'key': 'american', 'value': 'American'},
+    {'key': 'british', 'value': 'British'},
+    {'key': 'canadian', 'value': 'Canadian'},
+    {'key': 'chinese', 'value': 'Chinese'},
+    {'key': 'french', 'value': 'French'},
+    {'key': 'indian', 'value': 'Indian'},
+    {'key': 'italian', 'value': 'Italian'},
+    {'key': 'japanese', 'value': 'Japanese'},
+    {'key': 'mexican', 'value': 'Mexican'},
+    {'key': 'thai', 'value': 'Thai'},
+    {'key': 'turkish', 'value': 'Turkish'},
+    {'key': 'vietnamese', 'value': 'Vietnamese'},
   ];
 
   @override
@@ -55,39 +77,50 @@ class _HomeScreenState extends State<HomeScreen> {
     if (inputText.isEmpty) {
       _showSnackBar(
         _searchMode == 'ingredients' 
-          ? 'กรุณากรอกส่วนผสม' 
-          : 'กรุณากรอกชื่อเมนู', 
+          ? 'please_enter_ingredients'.tr
+          : 'please_enter_meal_name'.tr, 
         isError: true
       );
       return;
     }
     
     if (_searchMode == 'ingredients') {
-      final ingredients = inputText
+      // ถ้าเป็นภาษาไทย ให้แปลเป็นอังกฤษก่อนค้นหา
+      String searchText = inputText;
+      if (Get.locale?.languageCode == 'th') {
+        searchText = TranslationService.to.translateThaiToEnglish(inputText);
+      }
+      
+      final ingredients = searchText
           .split(',')
           .map((e) => e.trim())
           .where((e) => e.isNotEmpty)
           .toList();
       mealController.searchMeals(ingredients, allergyFilters.toList());
     } else {
-      mealController.searchMealsByName(inputText, allergyFilters.toList());
+      // ค้นหาด้วยชื่อเมนู
+      String searchText = inputText;
+      if (Get.locale?.languageCode == 'th') {
+        searchText = TranslationService.to.translateThaiToEnglish(inputText);
+      }
+      mealController.searchMealsByName(searchText, allergyFilters.toList());
     }
   }
 
   void _addAllergy() {
     final allergy = allergyController.text.trim();
     if (allergy.isEmpty) {
-      _showSnackBar('กรุณากรอกอาหารที่แพ้', isError: true);
+      _showSnackBar('please_enter_allergy'.tr, isError: true);
       return;
     }
     if (allergyFilters.contains(allergy)) {
-      _showSnackBar('มีอาหารนี้อยู่แล้ว', isError: true);
+      _showSnackBar('allergy_already_exists'.tr, isError: true);
       return;
     }
     
     allergyFilters.add(allergy);
     allergyController.clear();
-    _showSnackBar('เพิ่มอาหารแพ้แล้ว: $allergy');
+    _showSnackBar('allergy_added'.trParams({'allergy': allergy}));
   }
 
   void _loadRandomMeals() {
@@ -100,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _clearAllAllergies() {
     if (allergyFilters.isNotEmpty) {
       allergyFilters.clear();
-      _showSnackBar('ลบอาหารแพ้ทั้งหมดแล้ว');
+      _showSnackBar('all_allergies_removed'.tr);
     }
   }
 
@@ -173,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      'ส่วนผสม',
+                      'ingredients'.tr,
                       style: TextStyle(
                         color: _searchMode == 'ingredients' ? Colors.white : primaryColor,
                         fontWeight: FontWeight.w600,
@@ -209,7 +242,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      'ชื่อเมนู',
+                      'meal_name'.tr,
                       style: TextStyle(
                         color: _searchMode == 'name' ? Colors.white : primaryColor,
                         fontWeight: FontWeight.w600,
@@ -245,12 +278,12 @@ class _HomeScreenState extends State<HomeScreen> {
         style: const TextStyle(fontSize: 14),
         decoration: InputDecoration(
           labelText: _searchMode == 'ingredients' 
-            ? 'ค้นหาด้วยส่วนผสม' 
-            : 'ค้นหาด้วยชื่อเมนู',
+            ? 'search_by_ingredients'.tr
+            : 'search_by_name'.tr,
           labelStyle: TextStyle(color: textSecondary, fontSize: 14),
           hintText: _searchMode == 'ingredients' 
-            ? 'เช่น chicken, onion, garlic' 
-            : 'เช่น Pad Thai, Tom Yum',
+            ? 'search_ingredients_hint'.tr
+            : 'search_name_hint'.tr,
           hintStyle: TextStyle(color: textSecondary.withOpacity(0.7), fontSize: 13),
           prefixIcon: Icon(
             _searchMode == 'ingredients' ? Icons.set_meal : Icons.restaurant,
@@ -297,7 +330,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: _buildActionButton(
               onPressed: _loadRandomMeals,
               icon: Icons.shuffle,
-              label: 'สุ่ม',
+              label: 'random'.tr,
               color: Colors.green[600]!,
             ),
           ),
@@ -310,7 +343,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 });
               },
               icon: _isFilterExpanded ? Icons.expand_less : Icons.filter_list,
-              label: 'ตัวกรอง',
+              label: 'filter'.tr,
               color: primaryColor,
             ),
           ),
@@ -323,7 +356,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 });
               },
               icon: _isAllergyExpanded ? Icons.expand_less : Icons.warning_amber,
-              label: 'อาหารแพ้',
+              label: 'allergies'.tr,
               color: Colors.red[600]!,
             ),
           ),
@@ -392,7 +425,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Icon(Icons.filter_list, color: primaryColor, size: 20),
                     const SizedBox(width: 8),
                     Text(
-                      'ตัวกรองเมนูอาหาร',
+                      'meal_filter'.tr,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -404,7 +437,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 16),
                 
                 Text(
-                  'หมวดหมู่อาหาร',
+                  'food_category'.tr,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -423,10 +456,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     isExpanded: true,
                     underline: const SizedBox(),
                     style: TextStyle(fontSize: 14, color: textPrimary),
-                    items: categories.map((String category) {
+                    items: categories.map((category) {
                       return DropdownMenuItem<String>(
-                        value: category,
-                        child: Text(category),
+                        value: category['value'],
+                        child: Text(category['key']!.tr),
                       );
                     }).toList(),
                     onChanged: (String? newValue) {
@@ -440,7 +473,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 16),
                 
                 Text(
-                  'ประเทศ',
+                  'country'.tr,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -459,10 +492,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     isExpanded: true,
                     underline: const SizedBox(),
                     style: TextStyle(fontSize: 14, color: textPrimary),
-                    items: areas.map((String area) {
+                    items: areas.map((area) {
                       return DropdownMenuItem<String>(
-                        value: area,
-                        child: Text(area),
+                        value: area['value'],
+                        child: Text(area['key']!.tr),
                       );
                     }).toList(),
                     onChanged: (String? newValue) {
@@ -482,7 +515,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: ElevatedButton.icon(
                         onPressed: _applyFilters,
                         icon: const Icon(Icons.search, size: 16),
-                        label: const Text('ใช้ตัวกรอง'),
+                        label: Text('apply_filter'.tr),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primaryColor,
                           foregroundColor: Colors.white,
@@ -513,7 +546,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           elevation: 0,
                           textStyle: const TextStyle(fontSize: 13),
                         ),
-                        child: const Text('รีเซ็ต'),
+                        child: Text('reset'.tr),
                       ),
                     ),
                   ],
@@ -554,7 +587,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Icon(Icons.warning_amber, color: Colors.red[600], size: 20),
                         const SizedBox(width: 8),
                         Text(
-                          'จัดการอาหารที่แพ้',
+                          'allergy_management'.tr,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -571,7 +604,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           minimumSize: const Size(0, 0),
                         ),
-                        child: const Text('ลบทั้งหมด', style: TextStyle(fontSize: 12)),
+                        child: Text('remove_all'.tr, style: TextStyle(fontSize: 12)),
                       ),
                   ],
                 ),
@@ -584,7 +617,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: Colors.grey[50],
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Column(
                           children: [
                             Icon(
@@ -594,7 +627,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             SizedBox(height: 8),
                             Text(
-                              'ไม่มีอาหารที่แพ้',
+                              'no_allergies'.tr,
                               style: TextStyle(
                                 color: Colors.grey,
                                 fontSize: 14,
@@ -642,9 +675,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         controller: allergyController,
                         style: const TextStyle(fontSize: 14),
                         decoration: InputDecoration(
-                          labelText: 'เพิ่มอาหารที่แพ้',
+                          labelText: 'add_allergy'.tr,
                           labelStyle: TextStyle(fontSize: 13, color: textSecondary),
-                          hintText: 'เช่น peanut, milk, egg',
+                          hintText: 'allergy_hint'.tr,
                           hintStyle: TextStyle(fontSize: 12, color: textSecondary.withOpacity(0.7)),
                           prefixIcon: Icon(Icons.add_circle_outline, 
                             color: Colors.red[600], size: 20),
@@ -675,7 +708,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Icon(Icons.add, size: 18),
+                      child: Text('add'.tr, style: TextStyle(fontSize: 14)),
                     ),
                   ],
                 ),
@@ -694,7 +727,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Icon(Icons.restaurant_menu, color: primaryColor, size: 20),
           const SizedBox(width: 8),
           Text(
-            'ผลการค้นหา',
+            'search_results'.tr,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -710,7 +743,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
-                  '${mealController.meals.length} เมนู',
+                  'menus_count'.trParams({'count': '${mealController.meals.length}'}),
                   style: TextStyle(
                     color: primaryColor,
                     fontWeight: FontWeight.bold,
@@ -729,9 +762,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: const Text(
-          'เมนูอาหาร',
-          style: TextStyle(
+        title: Text(
+          'meal_menu'.tr,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             letterSpacing: 0.5,
@@ -746,6 +779,43 @@ class _HomeScreenState extends State<HomeScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
+          // Language Toggle Button
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.language, size: 22),
+            onSelected: (String languageCode) {
+              if (languageCode == 'th') {
+                Get.updateLocale(const Locale('th', 'TH'));
+              } else {
+                Get.updateLocale(const Locale('en', 'US'));
+              }
+              // Clear translation cache when language changes
+              if (Get.isRegistered<TranslationService>()) {
+                TranslationService.to.clearCache();
+              }
+            },
+            itemBuilder: (BuildContext context) => [
+              PopupMenuItem<String>(
+                value: 'en',
+                child: Row(
+                  children: [
+                    Icon(Icons.language, size: 16),
+                    SizedBox(width: 8),
+                    Text('english'.tr),
+                  ],
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: 'th',
+                child: Row(
+                  children: [
+                    Icon(Icons.language, size: 16),
+                    SizedBox(width: 8),
+                    Text('thai'.tr),
+                  ],
+                ),
+              ),
+            ],
+          ),
           IconButton(
             icon: const Icon(Icons.refresh_rounded, size: 22),
             onPressed: () {
@@ -758,7 +828,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _searchMode = 'ingredients';
               });
             },
-            tooltip: 'ล้างทั้งหมด',
+            tooltip: 'clear_all'.tr,
           ),
         ],
       ),
@@ -822,8 +892,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 16),
                       Text(
                         _searchMode == 'ingredients' 
-                          ? 'กำลังค้นหาจากส่วนผสม...' 
-                          : 'กำลังค้นหาจากชื่อเมนู...',
+                          ? 'loading_ingredients'.tr
+                          : 'loading_name'.tr,
                         style: TextStyle(
                           fontSize: 14,
                           color: textSecondary,
@@ -854,7 +924,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        'ไม่พบเมนูอาหาร',
+                        'no_meals_found'.tr,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -864,8 +934,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 8),
                       Text(
                         _searchMode == 'ingredients' 
-                          ? 'ลองค้นหาด้วยส่วนผสมอื่น หรือกดปุ่ม "สุ่ม"'
-                          : 'ลองค้นหาด้วยชื่อเมนูอื่น หรือกดปุ่ม "สุ่ม"',
+                          ? 'try_different_search'.tr
+                          : 'try_different_name'.tr,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: textSecondary,
@@ -877,7 +947,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ElevatedButton.icon(
                         onPressed: _loadRandomMeals,
                         icon: const Icon(Icons.shuffle, size: 18),
-                        label: const Text('สุ่มเมนู'),
+                        label: Text('random_meals'.tr),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green[600],
                           foregroundColor: Colors.white,

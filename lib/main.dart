@@ -1,9 +1,13 @@
-import 'package:easycook/routers/app_pages.dart';
-import 'package:easycook/routers/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import 'package:easycook/routers/app_pages.dart';
+import 'package:easycook/routers/app_routes.dart';
 import 'theme/app_theme.dart';
 
+// localization
+import 'utils/app_translations.dart';
+import 'services/translation_service.dart';
 
 void main() {
   runApp(const MainApp());
@@ -18,13 +22,14 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Form Validate App',
 
-      // กำหนด initial route เป็น Splash Screen
+      // Localization Setup (เพิ่ม)
+      translations: AppTranslations(),
+      locale: const Locale('en', 'US'),
+      fallbackLocale: const Locale('en', 'US'),
+
+      // Routing ตามของเดิม
       initialRoute: AppRoutes.SPLASH,
-
-      // กำหนด pages และ routes
       getPages: AppPages.routes,
-
-      // กำหนด route ที่ไม่พบ
       unknownRoute: GetPage(
         name: '/notfound',
         page: () => Scaffold(
@@ -46,7 +51,19 @@ class MainApp extends StatelessWidget {
           ),
         ),
       ),
+
+      // Theme ตามของเดิม
       theme: AppTheme.LightTheme,
+
+      // Initial Binding (เพิ่ม)
+      initialBinding: AppBinding(),
     );
+  }
+}
+
+class AppBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.put(TranslationService(), permanent: true);
   }
 }
