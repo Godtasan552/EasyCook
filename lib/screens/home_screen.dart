@@ -16,6 +16,25 @@ class _HomeScreenState extends State<HomeScreen> {
   final RxList<String> allergyFilters = <String>[].obs;
   final TextEditingController allergyController = TextEditingController();
   bool _isAllergyExpanded = false;
+  
+  // เพิ่มตัวแปรสำหรับ filter
+  String selectedCategory = 'All';
+  String selectedArea = 'All';
+  bool _isFilterExpanded = false;
+
+  // รายการหมวดหมู่และประเทศ
+  final List<String> categories = [
+    'All', 'Beef', 'Chicken', 'Dessert', 'Lamb', 'Miscellaneous', 
+    'Pasta', 'Pork', 'Seafood', 'Side', 'Starter', 'Vegan', 'Vegetarian'
+  ];
+  
+  final List<String> areas = [
+    'All', 'American', 'British', 'Canadian', 'Chinese', 'Croatian', 
+    'Dutch', 'Egyptian', 'French', 'Greek', 'Indian', 'Irish', 'Italian', 
+    'Jamaican', 'Japanese', 'Kenyan', 'Malaysian', 'Mexican', 'Moroccan', 
+    'Polish', 'Portuguese', 'Russian', 'Spanish', 'Thai', 'Tunisian', 
+    'Turkish', 'Vietnamese'
+  ];
 
   @override
   void dispose() {
@@ -56,7 +75,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _showSnackBar('เพิ่มอาหารแพ้แล้ว: $allergy');
   }
 
-  // แก้ไขฟังก์ชันนี้ให้สุ่ม 5 รายการ
   void _loadRandomMeals() {
     mealController.loadMultipleRandomMeals(
       count: 5,
@@ -69,6 +87,13 @@ class _HomeScreenState extends State<HomeScreen> {
       allergyFilters.clear();
       _showSnackBar('ลบอาหารแพ้ทั้งหมดแล้ว');
     }
+  }
+
+  // ฟังก์ชันสำหรับ filter
+  void _applyFilters() {
+    // ใช้ filter logic ที่คุณมี
+    // สามารถเรียก API ด้วย category และ area ที่เลือก
+    _showSnackBar('ใช้ตัวกรอง: $selectedCategory, $selectedArea');
   }
 
   void _showSnackBar(String message, {bool isError = false}) {
@@ -98,12 +123,26 @@ class _HomeScreenState extends State<HomeScreen> {
         foregroundColor: Colors.white,
         elevation: 4,
         centerTitle: true,
+        // เพิ่มปุ่มกลับ
+        automaticallyImplyLeading: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Get.back();
+          },
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
               mealController.clearMeals();
               searchController.clear();
+              // รีเซ็ต filter
+              setState(() {
+                selectedCategory = 'All';
+                selectedArea = 'All';
+                _isFilterExpanded = false;
+              });
             },
             tooltip: 'ล้างทั้งหมด',
           ),
@@ -171,16 +210,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                // Quick Action Buttons
+                // Quick Action Buttons - เพิ่มปุ่ม Filter
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     children: [
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: _loadRandomMeals, // เปลี่ยนจาก _loadRandomMeal
+                          onPressed: _loadRandomMeals,
                           icon: const Icon(Icons.shuffle, size: 20),
-                          label: const Text('สุ่ม 5 เมนู'), // เปลี่ยนข้อความ
+                          label: const Text('สุ่ม 5 เมนู'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green[600],
                             foregroundColor: Colors.white,
@@ -191,7 +230,30 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              _isFilterExpanded = !_isFilterExpanded;
+                            });
+                          },
+                          icon: Icon(
+                            _isFilterExpanded ? Icons.expand_less : Icons.filter_list,
+                            size: 20,
+                          ),
+                          label: const Text('ตัวกรอง'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue[600],
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () {
@@ -216,6 +278,154 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
+                ),
+
+                // Filter Section (Expandable) - ส่วนใหม่
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  height: _isFilterExpanded ? null : 0,
+                  child: _isFilterExpanded
+                      ? Container(
+                          margin: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.08),
+                                blurRadius: 10,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'ตัวกรองเมนูอาหาร',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              
+                              // หมวดหมู่
+                              const Text(
+                                'หมวดหมู่อาหาร',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.blue[300]!),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: DropdownButton<String>(
+                                  value: selectedCategory,
+                                  isExpanded: true,
+                                  underline: Container(),
+                                  items: categories.map((String category) {
+                                    return DropdownMenuItem<String>(
+                                      value: category,
+                                      child: Text(category),
+                                    );
+                                  }).toList(),
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      selectedCategory = newValue!;
+                                    });
+                                  },
+                                ),
+                              ),
+                              
+                              const SizedBox(height: 16),
+                              
+                              // ประเทศ
+                              const Text(
+                                'ประเทศ',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.blue[300]!),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: DropdownButton<String>(
+                                  value: selectedArea,
+                                  isExpanded: true,
+                                  underline: Container(),
+                                  items: areas.map((String area) {
+                                    return DropdownMenuItem<String>(
+                                      value: area,
+                                      child: Text(area),
+                                    );
+                                  }).toList(),
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      selectedArea = newValue!;
+                                    });
+                                  },
+                                ),
+                              ),
+                              
+                              const SizedBox(height: 16),
+                              
+                              // ปุ่มใช้ตัวกรอง
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: ElevatedButton.icon(
+                                      onPressed: _applyFilters,
+                                      icon: const Icon(Icons.search),
+                                      label: const Text('ใช้ตัวกรอง'),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.blue[600],
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(vertical: 12),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        selectedCategory = 'All';
+                                        selectedArea = 'All';
+                                      });
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.grey[300],
+                                      foregroundColor: Colors.black,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 20,
+                                        vertical: 12,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: const Text('รีเซ็ต'),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        )
+                      : null,
                 ),
 
                 // Allergy Section (Expandable)
@@ -403,7 +613,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 16),
                       const Text(
-                        'กำลังสุ่มเมนูอาหาร...', // เปลี่ยนข้อความ
+                        'กำลังสุ่มเมนูอาหาร...',
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey,
@@ -442,7 +652,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 8),
                       const Text(
-                        'ลองค้นหาด้วยส่วนผสมอื่น\nหรือกดปุ่ม "สุ่ม 5 เมนู"', // เปลี่ยนข้อความ
+                        'ลองค้นหาด้วยส่วนผสมอื่น\nหรือกดปุ่ม "สุ่ม 5 เมนู"',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.grey,
@@ -451,9 +661,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 24),
                       ElevatedButton.icon(
-                        onPressed: _loadRandomMeals, // เปลี่ยนจาก _loadRandomMeal
+                        onPressed: _loadRandomMeals,
                         icon: const Icon(Icons.shuffle),
-                        label: const Text('สุ่ม 5 เมนู'), // เปลี่ยนข้อความ
+                        label: const Text('สุ่ม 5 เมนู'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange[600],
                           foregroundColor: Colors.white,
