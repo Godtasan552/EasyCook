@@ -65,22 +65,26 @@ class DetailPage extends StatelessWidget {
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: meal.ingredients
+                  children: meal.formattedIngredients
                       .map(
-                        (ing) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
+                        (formattedIngredient) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Icon(
                                 Icons.check_circle_outline,
                                 color: Colors.deepOrangeAccent,
                                 size: 20,
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
-                                  ing,
-                                  style: const TextStyle(fontSize: 16),
+                                  formattedIngredient,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    height: 1.3,
+                                  ),
                                 ),
                               ),
                             ],
