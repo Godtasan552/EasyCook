@@ -17,6 +17,9 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController allergyController = TextEditingController();
   bool _isAllergyExpanded = false;
   
+  // เพิ่มตัวแปรสำหรับ search mode
+  String _searchMode = 'ingredients'; // 'ingredients' หรือ 'name'
+  
   // เพิ่มตัวแปรสำหรับ filter
   String selectedCategory = 'All';
   String selectedArea = 'All';
@@ -46,17 +49,27 @@ class _HomeScreenState extends State<HomeScreen> {
   void _searchMeals() {
     final inputText = searchController.text.trim();
     if (inputText.isEmpty) {
-      _showSnackBar('กรุณากรอกส่วนผสม', isError: true);
+      _showSnackBar(
+        _searchMode == 'ingredients' 
+          ? 'กรุณากรอกส่วนผสม' 
+          : 'กรุณากรอกชื่อเมนู', 
+        isError: true
+      );
       return;
     }
     
-    final ingredients = inputText
-        .split(',')
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
+    if (_searchMode == 'ingredients') {
+      final ingredients = inputText
+          .split(',')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
 
-    mealController.searchMeals(ingredients, allergyFilters.toList());
+      mealController.searchMeals(ingredients, allergyFilters.toList());
+    } else {
+      // ค้นหาด้วยชื่อเมนู
+      mealController.searchMealsByName(inputText, allergyFilters.toList());
+    }
   }
 
   void _addAllergy() {
@@ -91,9 +104,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // ฟังก์ชันสำหรับ filter
   void _applyFilters() {
-    // ใช้ filter logic ที่คุณมี
-    // สามารถเรียก API ด้วย category และ area ที่เลือก
-    _showSnackBar('ใช้ตัวกรอง: $selectedCategory, $selectedArea');
+    mealController.searchMealsByFilter(
+      category: selectedCategory != 'All' ? selectedCategory : null,
+      area: selectedArea != 'All' ? selectedArea : null,
+      excludeIngredients: allergyFilters.toList(),
+    );
   }
 
   void _showSnackBar(String message, {bool isError = false}) {
@@ -123,12 +138,12 @@ class _HomeScreenState extends State<HomeScreen> {
         foregroundColor: Colors.white,
         elevation: 4,
         centerTitle: true,
-        // เพิ่มปุ่มกลับ
-        automaticallyImplyLeading: true,
+        // แก้ไขปุ่มกลับให้ทำงานได้
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Get.back();
+            // ใช้ Navigator.pop() แทน Get.back()
+            Navigator.of(context).pop();
           },
         ),
         actions: [
@@ -142,6 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 selectedCategory = 'All';
                 selectedArea = 'All';
                 _isFilterExpanded = false;
+                _searchMode = 'ingredients';
               });
             },
             tooltip: 'ล้างทั้งหมด',
@@ -164,9 +180,125 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             child: Column(
               children: [
-                // ช่องค้นหาส่วนผสม
+                // Search Mode Toggle
                 Container(
-                  margin: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _searchMode = 'ingredients';
+                                      searchController.clear();
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    decoration: BoxDecoration(
+                                      color: _searchMode == 'ingredients' 
+                                        ? Colors.orange[600] 
+                                        : Colors.transparent,
+                                      borderRadius: const BorderRadius.horizontal(
+                                        left: Radius.circular(12),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.set_meal,
+                                          size: 18,
+                                          color: _searchMode == 'ingredients' 
+                                            ? Colors.white 
+                                            : Colors.orange[600],
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'ส่วนผสม',
+                                          style: TextStyle(
+                                            color: _searchMode == 'ingredients' 
+                                              ? Colors.white 
+                                              : Colors.orange[600],
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _searchMode = 'name';
+                                      searchController.clear();
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    decoration: BoxDecoration(
+                                      color: _searchMode == 'name' 
+                                        ? Colors.orange[600] 
+                                        : Colors.transparent,
+                                      borderRadius: const BorderRadius.horizontal(
+                                        right: Radius.circular(12),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.restaurant,
+                                          size: 18,
+                                          color: _searchMode == 'name' 
+                                            ? Colors.white 
+                                            : Colors.orange[600],
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'ชื่อเมนู',
+                                          style: TextStyle(
+                                            color: _searchMode == 'name' 
+                                              ? Colors.white 
+                                              : Colors.orange[600],
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // ช่องค้นหา
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
@@ -181,9 +313,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: TextField(
                     controller: searchController,
                     decoration: InputDecoration(
-                      labelText: 'ค้นหาด้วยส่วนผสม',
-                      hintText: 'เช่น chicken, onion, garlic',
-                      prefixIcon: Icon(Icons.search, color: Colors.orange[600]),
+                      labelText: _searchMode == 'ingredients' 
+                        ? 'ค้นหาด้วยส่วนผสม' 
+                        : 'ค้นหาด้วยชื่อเมนู',
+                      hintText: _searchMode == 'ingredients' 
+                        ? 'เช่น chicken, onion, garlic' 
+                        : 'เช่น Pad Thai, Tom Yum, Fried Rice',
+                      prefixIcon: Icon(
+                        _searchMode == 'ingredients' ? Icons.set_meal : Icons.restaurant,
+                        color: Colors.orange[600],
+                      ),
                       suffixIcon: Container(
                         margin: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
@@ -209,6 +348,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     onSubmitted: (value) => _searchMeals(),
                   ),
                 ),
+
+                const SizedBox(height: 16),
 
                 // Quick Action Buttons - เพิ่มปุ่ม Filter
                 Container(
@@ -612,9 +753,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.orange[600]!),
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        'กำลังสุ่มเมนูอาหาร...',
-                        style: TextStyle(
+                      Text(
+                        _searchMode == 'ingredients' 
+                          ? 'กำลังค้นหาจากส่วนผสม...' 
+                          : 'กำลังค้นหาจากชื่อเมนู...',
+                        style: const TextStyle(
                           fontSize: 16,
                           color: Colors.grey,
                         ),
@@ -651,10 +794,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        'ลองค้นหาด้วยส่วนผสมอื่น\nหรือกดปุ่ม "สุ่ม 5 เมนู"',
+                      Text(
+                        _searchMode == 'ingredients' 
+                          ? 'ลองค้นหาด้วยส่วนผสมอื่น\nหรือกดปุ่ม "สุ่ม 5 เมนู"'
+                          : 'ลองค้นหาด้วยชื่อเมนูอื่น\nหรือกดปุ่ม "สุ่ม 5 เมนู"',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.grey,
                           fontSize: 14,
                         ),

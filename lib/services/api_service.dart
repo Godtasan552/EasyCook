@@ -143,4 +143,121 @@ class ApiService {
       throw Exception('Failed to search meals: $e');
     }
   }
+
+  /// ค้นหาเมนูตาม category
+  Future<List<Meal>> searchMealsByCategory(String category) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/filter.php?c=${Uri.encodeComponent(category)}'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['meals'] == null) return [];
+
+        List mealsBrief = data['meals'];
+        List<Meal> fullMeals = [];
+
+        // เนื่องจาก API filter ให้เฉพาะข้อมูลพื้นฐาน เราจึงต้องดึงรายละเอียดแต่ละเมนู
+        // แต่เพื่อประสิทธิภาพ เราจำกัดจำนวน
+        final limitedMeals = mealsBrief.take(20).toList();
+        
+        for (var mealBrief in limitedMeals) {
+          try {
+            final detail = await fetchMealDetail(mealBrief['idMeal']);
+            if (detail != null) {
+              fullMeals.add(detail);
+            }
+          } catch (e) {
+            print('Error fetching meal detail for ${mealBrief['idMeal']}: $e');
+            continue;
+          }
+        }
+        return fullMeals;
+      }
+      throw Exception('Failed to search meals by category: ${response.statusCode}');
+    } catch (e) {
+      print('Error searching meals by category: $e');
+      throw Exception('Failed to search meals: $e');
+    }
+  }
+
+  /// ค้นหาเมนูตาม area (ประเทศ)
+  Future<List<Meal>> searchMealsByArea(String area) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/filter.php?a=${Uri.encodeComponent(area)}'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['meals'] == null) return [];
+
+        List mealsBrief = data['meals'];
+        List<Meal> fullMeals = [];
+
+        // จำกัดจำนวนเพื่อประสิทธิภาพ
+        final limitedMeals = mealsBrief.take(20).toList();
+        
+        for (var mealBrief in limitedMeals) {
+          try {
+            final detail = await fetchMealDetail(mealBrief['idMeal']);
+            if (detail != null) {
+              fullMeals.add(detail);
+            }
+          } catch (e) {
+            print('Error fetching meal detail for ${mealBrief['idMeal']}: $e');
+            continue;
+          }
+        }
+        return fullMeals;
+      }
+      throw Exception('Failed to search meals by area: ${response.statusCode}');
+    } catch (e) {
+      print('Error searching meals by area: $e');
+      throw Exception('Failed to search meals: $e');
+    }
+  }
+
+  /// ดึงรายการ categories ทั้งหมด
+  Future<List<String>> getAllCategories() async {
+    try {
+      final response = await http.get(Uri.parse('$_baseUrl/categories.php'));
+      
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['categories'] != null) {
+          List categories = data['categories'];
+          return categories
+              .map<String>((cat) => cat['strCategory'] as String)
+              .toList();
+        }
+      }
+      return [];
+    } catch (e) {
+      print('Error fetching categories: $e');
+      return [];
+    }
+  }
+
+  /// ดึงรายการ areas ทั้งหมด
+  Future<List<String>> getAllAreas() async {
+    try {
+      final response = await http.get(Uri.parse('$_baseUrl/list.php?a=list'));
+      
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['meals'] != null) {
+          List areas = data['meals'];
+          return areas
+              .map<String>((area) => area['strArea'] as String)
+              .toList();
+        }
+      }
+      return [];
+    } catch (e) {
+      print('Error fetching areas: $e');
+      return [];
+    }
+  }
 }
