@@ -186,10 +186,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildSearchBar() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      height: 40,
+      height: 48, // Increased height from 40 to 48
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24), // Slightly larger border radius
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 6, offset: const Offset(0, 1)),
         ],
@@ -198,16 +198,16 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           // Search Mode Toggle
           Container(
-            width: 80,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+            width: 90, // Slightly wider for better touch area
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: DropdownButton<String>(
               value: _searchMode,
               isExpanded: true,
               underline: const SizedBox(),
-              style: const TextStyle(fontSize: 12, color: Colors.black),
+              style: const TextStyle(fontSize: 14, color: Colors.black), // Increased font size
               items: [
-                DropdownMenuItem(value: 'ingredients', child: Text('ingredients'.tr, style: TextStyle(fontSize: 12))),
-                DropdownMenuItem(value: 'name', child: Text('meal_name'.tr, style: TextStyle(fontSize: 12))),
+                DropdownMenuItem(value: 'ingredients', child: Text('ingredients'.tr, style: TextStyle(fontSize: 14))),
+                DropdownMenuItem(value: 'name', child: Text('meal_name'.tr, style: TextStyle(fontSize: 14))),
               ],
               onChanged: (value) {
                 setState(() {
@@ -221,24 +221,24 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: TextField(
               controller: searchController,
-              style: const TextStyle(fontSize: 13),
+              style: const TextStyle(fontSize: 15), // Increased font size
               decoration: InputDecoration(
                 hintText: _searchMode == 'ingredients' ? 'search_ingredients_hint'.tr : 'search_name_hint'.tr,
-                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 12),
+                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14), // Increased hint font size
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14), // Adjusted padding
               ),
               onSubmitted: (value) => _searchMeals(),
             ),
           ),
           // Search Button
           IconButton(
-            icon: Icon(Icons.search, size: 18, color: primaryColor),
+            icon: Icon(Icons.search, size: 20, color: primaryColor), // Increased icon size
             onPressed: _searchMeals,
           ),
           // Options Button
           IconButton(
-            icon: Icon(Icons.tune, size: 18, color: primaryColor),
+            icon: Icon(Icons.tune, size: 20, color: primaryColor), // Increased icon size
             onPressed: () => _showOptionsBottomSheet(),
           ),
         ],
@@ -294,7 +294,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     allergyFilters.isEmpty && selectedCategory == 'All' && selectedArea == 'All'
                         ? 'add_filters'.tr
-                        : 'filters'.trParams({'count': '${allergyFilters.length + (selectedCategory != 'All' ? 1 : 0) + (selectedArea != 'All' ? 1 : 0)}'}),
+                        : 'filters_count'.trParams({'count': '${allergyFilters.length + (selectedCategory != 'All' ? 1 : 0) + (selectedArea != 'All' ? 1 : 0)}'}),
                     style: TextStyle(fontSize: 12),
                   ),
                 ],
