@@ -167,8 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Stack(
         children: [
           for (int row = 0; row < 15; row++)
-            for (int col = 0; col < 6; col++)
-              _buildIconPattern(row, col),
+            for (int col = 0; col < 6; col++) _buildIconPattern(row, col),
         ],
       ),
     );
@@ -179,7 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const double verticalSpacing = 65.0;
     const double startX = 25.0;
     const double startY = 40.0;
-    
+
     final List<IconData> foodIcons = [
       Icons.restaurant,
       Icons.local_pizza,
@@ -198,18 +197,21 @@ class _HomeScreenState extends State<HomeScreen> {
       Icons.egg_alt,
       Icons.local_bar,
     ];
-    
+
     double x = startX + (col * horizontalSpacing);
     double y = startY + (row * verticalSpacing);
-    
+
     if (row % 2 == 1) {
       x += horizontalSpacing / 2;
     }
-    
+
     int iconIndex = (row * 6 + col) % foodIcons.length;
-    double iconSize = (row + col) % 3 == 0 ? 32 : 
-                     (row + col) % 3 == 1 ? 28 : 30;
-    
+    double iconSize = (row + col) % 3 == 0
+        ? 32
+        : (row + col) % 3 == 1
+        ? 28
+        : 30;
+
     return Positioned(
       left: x,
       top: y,
@@ -232,17 +234,19 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // ปรับปุ่ม toggle แบบเรียบง่าย
   Widget _buildSearchModeToggle() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.fromLTRB(16, 6, 16, 4),
+      height: 36,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.95),
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 6,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
@@ -257,37 +261,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 });
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                height: 36,
                 decoration: BoxDecoration(
                   color: _searchMode == 'ingredients'
                       ? primaryColor
                       : Colors.transparent,
-                  borderRadius: const BorderRadius.horizontal(
-                    left: Radius.circular(12),
-                  ),
+                  borderRadius: BorderRadius.circular(18),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.set_meal,
-                      size: 18,
+                child: Center(
+                  child: Text(
+                    'ingredients'.tr,
+                    style: TextStyle(
                       color: _searchMode == 'ingredients'
                           ? Colors.white
-                          : primaryColor,
+                          : Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                      fontSize: 13,
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'ingredients'.tr,
-                      style: TextStyle(
-                        color: _searchMode == 'ingredients'
-                            ? Colors.white
-                            : primaryColor,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -301,37 +292,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 });
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                height: 36,
                 decoration: BoxDecoration(
                   color: _searchMode == 'name'
                       ? primaryColor
                       : Colors.transparent,
-                  borderRadius: const BorderRadius.horizontal(
-                    right: Radius.circular(12),
-                  ),
+                  borderRadius: BorderRadius.circular(18),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.restaurant,
-                      size: 18,
+                child: Center(
+                  child: Text(
+                    'meal_name'.tr,
+                    style: TextStyle(
                       color: _searchMode == 'name'
                           ? Colors.white
-                          : primaryColor,
+                          : Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                      fontSize: 13,
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'meal_name'.tr,
-                      style: TextStyle(
-                        color: _searchMode == 'name'
-                            ? Colors.white
-                            : primaryColor,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -341,17 +319,19 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // ปรับแถบค้นหาให้เรียบง่าย
   Widget _buildSearchField() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+      height: 44,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.95),
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 6,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
@@ -359,49 +339,29 @@ class _HomeScreenState extends State<HomeScreen> {
         controller: searchController,
         style: const TextStyle(fontSize: 14),
         decoration: InputDecoration(
-          labelText: _searchMode == 'ingredients'
-              ? 'search_by_ingredients'.tr
-              : 'search_by_name'.tr,
-          labelStyle: TextStyle(color: textSecondary, fontSize: 14),
           hintText: _searchMode == 'ingredients'
               ? 'search_ingredients_hint'.tr
               : 'search_name_hint'.tr,
-          hintStyle: TextStyle(
-            color: textSecondary.withOpacity(0.7),
-            fontSize: 13,
-          ),
-          prefixIcon: Icon(
-            _searchMode == 'ingredients' ? Icons.set_meal : Icons.restaurant,
-            color: primaryColor,
-            size: 20,
-          ),
+          hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
+          prefixIcon: Icon(Icons.search, color: Colors.grey[400], size: 18),
           suffixIcon: Container(
-            margin: const EdgeInsets.all(4),
-            width: 40,
-            height: 40,
+            margin: const EdgeInsets.all(6),
             child: ElevatedButton(
               onPressed: _searchMeals,
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                shape: const CircleBorder(),
                 elevation: 0,
                 padding: EdgeInsets.zero,
               ),
-              child: const Icon(Icons.search, size: 18),
+              child: const Icon(Icons.search, size: 16),
             ),
           ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
-          filled: true,
-          fillColor: Colors.white.withOpacity(0.95),
+          border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
-            vertical: 14,
+            vertical: 12,
           ),
         ),
         onSubmitted: (value) => _searchMeals(),
@@ -409,432 +369,503 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // ปรับปุ่มให้เป็นแบบ compact
   Widget _buildActionButtons() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 6),
       child: Row(
         children: [
-          Expanded(
-            child: _buildActionButton(
-              onPressed: _loadRandomMeals,
-              icon: Icons.shuffle,
-              label: 'random'.tr,
-              color: Colors.green[600]!,
-            ),
+          _buildCompactButton(
+            onPressed: _loadRandomMeals,
+            icon: Icons.shuffle,
+            label: 'random'.tr,
+            color: Colors.green[500]!,
           ),
           const SizedBox(width: 8),
-          Expanded(
-            child: _buildActionButton(
-              onPressed: () {
-                setState(() {
-                  _isFilterExpanded = !_isFilterExpanded;
-                });
-              },
-              icon: _isFilterExpanded ? Icons.expand_less : Icons.filter_list,
-              label: 'filter'.tr,
-              color: primaryColor,
-            ),
+          _buildCompactButton(
+            onPressed: () {
+              setState(() {
+                _isFilterExpanded = !_isFilterExpanded;
+              });
+            },
+            icon: Icons.tune,
+            label: 'filter'.tr,
+            color: Colors.blue[500]!,
           ),
           const SizedBox(width: 8),
-          Expanded(
-            child: _buildActionButton(
-              onPressed: () {
-                setState(() {
-                  _isAllergyExpanded = !_isAllergyExpanded;
-                });
-              },
-              icon: _isAllergyExpanded
-                  ? Icons.expand_less
-                  : Icons.warning_amber,
-              label: 'allergies'.tr,
-              color: Colors.red[600]!,
-            ),
+          _buildCompactButton(
+            onPressed: () {
+              setState(() {
+                _isAllergyExpanded = !_isAllergyExpanded;
+              });
+            },
+            icon: Icons.block,
+            label: 'allergies'.tr,
+            color: Colors.orange[500]!,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildActionButton({
+  Widget _buildCompactButton({
     required VoidCallback onPressed,
     required IconData icon,
     required String label,
     required Color color,
   }) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white.withOpacity(0.95),
-        foregroundColor: color,
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        elevation: 4,
-        shadowColor: Colors.black.withOpacity(0.2),
+    return Expanded(
+      child: Container(
+        height: 32,
+        child: ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: color,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(color: color.withOpacity(0.3), width: 1),
+            ),
+            elevation: 0,
+            padding: EdgeInsets.zero,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 13),
+              const SizedBox(width: 3),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ซ่อน search results header เพื่อลดความรก
+  Widget _buildResultsSection() {
+    return Expanded(
+      child: Obx(() {
+        if (mealController.loading.value) {
+          return Center(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                    strokeWidth: 2,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'loading'.tr,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        if (mealController.meals.isEmpty) {
+          return Center(
+            child: Container(
+              margin: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.search_off, size: 40, color: Colors.grey[300]),
+                  const SizedBox(height: 12),
+                  Text(
+                    'no_meals_found'.tr,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'try_different_search'.tr,
+                    style: TextStyle(color: Colors.grey[500], fontSize: 13),
+                  ),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: _loadRandomMeals,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green[500],
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                    ),
+                    child: Text(
+                      'random_meals'.tr,
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
+          itemCount: mealController.meals.length,
+          itemBuilder: (context, index) {
+            final meal = mealController.meals[index];
+            return Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: MealCard(
+                meal: meal,
+                onTap: () {
+                  Get.to(() => DetailPage(), arguments: meal);
+                },
+              ),
+            );
+          },
+        );
+      }),
+    );
+  }
+
+  // ปรับส่วน filter ให้เรียบง่าย
+  Widget _buildFilterSection() {
+    if (!_isFilterExpanded) return const SizedBox.shrink();
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 6, 16, 4),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18),
-          const SizedBox(height: 2),
           Text(
-            label,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            'meal_filter'.tr,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: textPrimary,
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'food_category'.tr,
+                      style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                    ),
+                    const SizedBox(height: 3),
+                    Container(
+                      height: 36,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey[200]!),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: DropdownButton<String>(
+                        value: selectedCategory,
+                        isExpanded: true,
+                        underline: const SizedBox(),
+                        style: TextStyle(fontSize: 13, color: textPrimary),
+                        items: categories.map((category) {
+                          return DropdownMenuItem<String>(
+                            value: category['value'],
+                            child: Text(category['key']!.tr),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedCategory = newValue!;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'country'.tr,
+                      style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                    ),
+                    const SizedBox(height: 3),
+                    Container(
+                      height: 36,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey[200]!),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: DropdownButton<String>(
+                        value: selectedArea,
+                        isExpanded: true,
+                        underline: const SizedBox(),
+                        style: TextStyle(fontSize: 13, color: textPrimary),
+                        items: areas.map((area) {
+                          return DropdownMenuItem<String>(
+                            value: area['value'],
+                            child: Text(area['key']!.tr),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedArea = newValue!;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 10),
+
+          Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: ElevatedButton(
+                  onPressed: _applyFilters,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    elevation: 0,
+                    minimumSize: const Size(0, 34),
+                  ),
+                  child: Text(
+                    'apply_filter'.tr,
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () {
+                    setState(() {
+                      selectedCategory = 'All';
+                      selectedArea = 'All';
+                    });
+                  },
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.grey[600],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    side: BorderSide(color: Colors.grey[300]!),
+                    minimumSize: const Size(0, 34),
+                  ),
+                  child: Text('reset'.tr, style: const TextStyle(fontSize: 13)),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildFilterSection() {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      child: _isFilterExpanded
-          ? Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.95),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.filter_list, color: primaryColor, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        'meal_filter'.tr,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  Text(
-                    'food_category'.tr,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey[300]!),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: DropdownButton<String>(
-                      value: selectedCategory,
-                      isExpanded: true,
-                      underline: const SizedBox(),
-                      style: TextStyle(fontSize: 14, color: textPrimary),
-                      items: categories.map((category) {
-                        return DropdownMenuItem<String>(
-                          value: category['value'],
-                          child: Text(category['key']!.tr),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectedCategory = newValue!;
-                        });
-                      },
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  Text(
-                    'country'.tr,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey[300]!),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: DropdownButton<String>(
-                      value: selectedArea,
-                      isExpanded: true,
-                      underline: const SizedBox(),
-                      style: TextStyle(fontSize: 14, color: textPrimary),
-                      items: areas.map((area) {
-                        return DropdownMenuItem<String>(
-                          value: area['value'],
-                          child: Text(area['key']!.tr),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectedArea = newValue!;
-                        });
-                      },
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: ElevatedButton.icon(
-                          onPressed: _applyFilters,
-                          icon: const Icon(Icons.search, size: 16),
-                          label: Text('apply_filter'.tr),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryColor,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            textStyle: const TextStyle(fontSize: 13),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              selectedCategory = 'All';
-                              selectedArea = 'All';
-                            });
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.grey[100],
-                            foregroundColor: textSecondary,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            elevation: 0,
-                            textStyle: const TextStyle(fontSize: 13),
-                          ),
-                          child: Text('reset'.tr),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            )
-          : const SizedBox.shrink(),
-    );
-  }
-
+  // ปรับส่วนแพ้อาหารให้เรียบง่าย
   Widget _buildAllergySection() {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      child: _isAllergyExpanded
-          ? Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.95),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+    if (!_isAllergyExpanded) return const SizedBox.shrink();
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 4, 16, 6),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'allergy_management'.tr,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: textPrimary,
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.warning_amber,
-                            color: Colors.red[600],
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'allergy_management'.tr,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: textPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      if (allergyFilters.isNotEmpty)
-                        TextButton(
-                          onPressed: _clearAllAllergies,
-                          style: TextButton.styleFrom(
-                            foregroundColor: Colors.red[600],
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            minimumSize: const Size(0, 0),
-                          ),
-                          child: Text(
-                            'remove_all'.tr,
-                            style: TextStyle(fontSize: 12),
-                          ),
-                        ),
-                    ],
+              if (allergyFilters.isNotEmpty)
+                TextButton(
+                  onPressed: _clearAllAllergies,
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.red[500],
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    minimumSize: const Size(0, 0),
                   ),
-                  const SizedBox(height: 12),
-
-                  Obx(
-                    () => allergyFilters.isEmpty
-                        ? Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[50],
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Center(
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    Icons.restaurant_menu,
-                                    size: 32,
-                                    color: Colors.grey,
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text(
-                                    'no_allergies'.tr,
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          )
-                        : Wrap(
-                            spacing: 6,
-                            runSpacing: 6,
-                            children: allergyFilters
-                                .map(
-                                  (allergy) => Chip(
-                                    label: Text(
-                                      allergy,
-                                      style: TextStyle(
-                                        color: Colors.red[800],
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                    deleteIcon: const Icon(
-                                      Icons.close,
-                                      size: 16,
-                                    ),
-                                    onDeleted: () =>
-                                        allergyFilters.remove(allergy),
-                                    backgroundColor: Colors.red[50],
-                                    deleteIconColor: Colors.red[600],
-                                    materialTapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
-                                    visualDensity: VisualDensity.compact,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      side: BorderSide(color: Colors.red[200]!),
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                          ),
+                  child: Text(
+                    'remove_all'.tr,
+                    style: const TextStyle(fontSize: 11),
                   ),
+                ),
+            ],
+          ),
 
-                  const SizedBox(height: 16),
+          const SizedBox(height: 6),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: allergyController,
-                          style: const TextStyle(fontSize: 14),
-                          decoration: InputDecoration(
-                            labelText: 'add_allergy'.tr,
-                            labelStyle: TextStyle(
-                              fontSize: 13,
-                              color: textSecondary,
-                            ),
-                            hintText: 'allergy_hint'.tr,
-                            hintStyle: TextStyle(
-                              fontSize: 12,
-                              color: textSecondary.withOpacity(0.7),
-                            ),
-                            prefixIcon: Icon(
-                              Icons.add_circle_outline,
-                              color: Colors.red[600],
-                              size: 20,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: Colors.red[300]!),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(
-                                color: Colors.red[600]!,
-                                width: 2,
-                              ),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 12,
-                            ),
-                          ),
-                          onSubmitted: (value) => _addAllergy(),
-                        ),
+          Obx(
+            () => allergyFilters.isEmpty
+                ? Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'no_allergies'.tr,
+                        style: TextStyle(color: Colors.grey[500], fontSize: 12),
                       ),
-                      const SizedBox(width: 12),
-                      ElevatedButton(
-                        onPressed: _addAllergy,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red[600],
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 16,
+                    ),
+                  )
+                : Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    children: allergyFilters
+                        .map(
+                          (allergy) => Chip(
+                            label: Text(
+                              allergy,
+                              style: const TextStyle(fontSize: 11),
+                            ),
+                            deleteIcon: const Icon(Icons.close, size: 14),
+                            onDeleted: () => allergyFilters.remove(allergy),
+                            backgroundColor: Colors.red[50],
+                            deleteIconColor: Colors.red[500],
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
+                            visualDensity: VisualDensity.compact,
                           ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text('add'.tr, style: TextStyle(fontSize: 14)),
-                      ),
-                    ],
+                        )
+                        .toList(),
                   ),
-                ],
+          ),
+
+          const SizedBox(height: 8),
+
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 36,
+                  child: TextField(
+                    controller: allergyController,
+                    decoration: InputDecoration(
+                      hintText: 'allergy_hint'.tr,
+                      hintStyle: TextStyle(
+                        color: Colors.grey[400],
+                        fontSize: 12,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[200]!),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                      ),
+                    ),
+                    style: const TextStyle(fontSize: 13),
+                    onSubmitted: (value) => _addAllergy(),
+                  ),
+                ),
               ),
-            )
-          : const SizedBox.shrink(),
+              const SizedBox(width: 6),
+              ElevatedButton(
+                onPressed: _addAllergy,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red[500],
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  elevation: 0,
+                  minimumSize: const Size(50, 36),
+                ),
+                child: Text('add'.tr, style: const TextStyle(fontSize: 13)),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -913,17 +944,18 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Stack(
           children: [
             // Background Pattern
-            Positioned.fill(
-              child: _buildBackgroundPattern(),
-            ),
-            
+            Positioned.fill(child: _buildBackgroundPattern()),
+
             // Main Content
             Column(
               children: [
                 // Custom App Bar
                 SafeArea(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     child: Row(
                       children: [
                         // Back Button
@@ -933,7 +965,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: IconButton(
-                            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 22),
+                            icon: const Icon(
+                              Icons.arrow_back,
+                              color: Colors.white,
+                              size: 22,
+                            ),
                             onPressed: () {
                               if (Get.key.currentState?.canPop() ?? false) {
                                 Get.back();
@@ -943,9 +979,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             },
                           ),
                         ),
-                        
+
                         const SizedBox(width: 16),
-                        
+
                         // App Title
                         Expanded(
                           child: Text(
@@ -965,7 +1001,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                         ),
-                        
+
                         // Language Button
                         Container(
                           decoration: BoxDecoration(
@@ -973,7 +1009,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: PopupMenuButton<String>(
-                            icon: const Icon(Icons.language, color: Colors.white, size: 22),
+                            icon: const Icon(
+                              Icons.language,
+                              color: Colors.white,
+                              size: 22,
+                            ),
                             onSelected: (String languageCode) {
                               if (languageCode == 'th') {
                                 Get.updateLocale(const Locale('th', 'TH'));
@@ -1008,9 +1048,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                         ),
-                        
+
                         const SizedBox(width: 8),
-                        
+
                         // Refresh Button
                         Container(
                           decoration: BoxDecoration(
@@ -1018,7 +1058,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: IconButton(
-                            icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 22),
+                            icon: const Icon(
+                              Icons.refresh_rounded,
+                              color: Colors.white,
+                              size: 22,
+                            ),
                             onPressed: () {
                               mealController.clearMeals();
                               searchController.clear();
@@ -1043,7 +1087,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [Colors.white.withOpacity(0.1), Colors.transparent],
+                      colors: [
+                        Colors.white.withOpacity(0.1),
+                        Colors.transparent,
+                      ],
                     ),
                   ),
                   padding: const EdgeInsets.only(bottom: 16),
@@ -1083,13 +1130,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  primaryColor,
+                                ),
                                 strokeWidth: 3,
                               ),
                             ),
                             const SizedBox(height: 20),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.9),
                                 borderRadius: BorderRadius.circular(20),
