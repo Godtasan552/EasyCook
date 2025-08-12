@@ -1,5 +1,6 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';  // เพิ่ม GetX
+import 'package:get/get.dart';
 import '../routers/app_routes.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -57,32 +58,8 @@ class _SplashScreenState extends State<SplashScreen>
     _logoController.forward();
     await Future.delayed(const Duration(milliseconds: 800));
     _textController.forward();
-
-    // ลดเวลาให้สั้นลง (2 วินาที)
     await Future.delayed(const Duration(milliseconds: 2000));
-
-    // ไปหน้า BkkScreen แทน
     Get.offAllNamed(AppRoutes.BKK);
-  }
-
-
-  Future<void> _checkUserStatus() async {
-    print('Checking user status...');
-
-    final isLoggedIn = await _checkLoginStatus();
-    print('isLoggedIn: $isLoggedIn');
-
-    if (isLoggedIn) {
-      // เปลี่ยนเป็นหน้า Home ถ้ามี
-      Get.offAllNamed('/home');
-    } else {
-      Get.offAllNamed('/login');
-    }
-  }
-
-  Future<bool> _checkLoginStatus() async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    return false; // ปรับตามระบบ login จริง
   }
 
   @override
@@ -95,159 +72,220 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue[700],
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.blue[700]!, Colors.blue[500]!, Colors.blue[300]!],
+      body: Stack(
+        children: [
+          // Gradient background
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                colors: [
+                  Color(0xFFFF6B6B),
+                  Color(0xFFFF8E53),
+                  Color(0xFFFFD93D),
+                ],
+              ),
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    AnimatedBuilder(
-                      animation: _logoController,
-                      builder: (context, child) {
-                        return Transform.scale(
-                          scale: _logoScaleAnimation.value,
-                          child: Opacity(
-                            opacity: _logoOpacityAnimation.value,
-                            child: Container(
-                              height: 120,
-                              width: 120,
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black26,
-                                    blurRadius: 20,
-                                    offset: Offset(0, 10),
-                                  ),
-                                ],
-                              ),
-                              child: const Icon(
-                                Icons.security,
-                                size: 60,
-                                color: Colors.blue,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 40),
-                    AnimatedBuilder(
-                      animation: _textController,
-                      builder: (context, child) {
-                        return SlideTransition(
-                          position: _textSlideAnimation,
-                          child: FadeTransition(
-                            opacity: _textOpacityAnimation,
-                            child: Column(
-                              children: [
-                                Text(
-                                  'Template App',
-                                  style: TextStyle(
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    shadows: [
-                                      Shadow(
-                                        color: Colors.black.withOpacity(0.3),
-                                        offset: const Offset(0, 2),
-                                        blurRadius: 4,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Secure • Simple • Smart',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.white.withOpacity(0.9),
-                                    fontWeight: FontWeight.w300,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 60),
-                    AnimatedBuilder(
-                      animation: _textController,
-                      builder: (context, child) {
-                        return FadeTransition(
-                          opacity: _textOpacityAnimation,
-                          child: Column(
-                            children: [
-                              SizedBox(
-                                width: 40,
-                                height: 40,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 3,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white.withOpacity(0.8),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'กำลังเตรียมแอปพลิเคชัน...',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white.withOpacity(0.8),
-                                  fontWeight: FontWeight.w400,
-                                ),
+
+          // Background pattern
+          Positioned.fill(child: _buildBackgroundPattern()),
+
+          // Main content
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Logo
+                AnimatedBuilder(
+                  animation: _logoController,
+                  builder: (context, child) {
+                    return Transform.scale(
+                      scale: _logoScaleAnimation.value,
+                      child: Opacity(
+                        opacity: _logoOpacityAnimation.value,
+                        child: Container(
+                          width: 130,
+                          height: 130,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.white.withOpacity(0.5),
+                                blurRadius: 20,
+                                spreadRadius: 5,
                               ),
                             ],
                           ),
-                        );
-                      },
-                    ),
-                  ],
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(30),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                              child: Container(
+                                color: Colors.white.withOpacity(0.2),
+                                child: const Icon(
+                                  Icons.restaurant_menu,
+                                  size: 70,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              ),
-              AnimatedBuilder(
-                animation: _textController,
-                builder: (context, child) {
-                  return FadeTransition(
-                    opacity: _textOpacityAnimation,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 40),
-                      child: Column(
-                        children: [
-                          Text(
-                            'เวอร์ชัน 1.0.0',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.white.withOpacity(0.7),
+
+                const SizedBox(height: 40),
+
+                // Title & Subtitle
+                AnimatedBuilder(
+                  animation: _textController,
+                  builder: (context, child) {
+                    return SlideTransition(
+                      position: _textSlideAnimation,
+                      child: FadeTransition(
+                        opacity: _textOpacityAnimation,
+                        child: Column(
+                          children: const [
+                            Text(
+                              'EasyCook',
+                              style: TextStyle(
+                                fontSize: 44,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                letterSpacing: 2,
+                                shadows: [
+                                  Shadow(
+                                    offset: Offset(2, 2),
+                                    blurRadius: 4,
+                                    color: Colors.black26,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '© 2024 Form Validate App',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.white.withOpacity(0.6),
+                            SizedBox(height: 12),
+                            Text(
+                              'ทำอาหารง่าย ๆ ได้ทุกเมื่อ',
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.white70,
+                                fontWeight: FontWeight.w400,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          // Loading indicator at bottom
+          Positioned(
+            bottom: 40,
+            left: 0,
+            right: 0,
+            child: FadeTransition(
+              opacity: _textOpacityAnimation,
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: 45,
+                    height: 45,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Colors.white.withOpacity(0.9),
                       ),
                     ),
-                  );
-                },
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'กำลังโหลด...',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white.withOpacity(0.7),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBackgroundPattern() {
+    return Opacity(
+      opacity: 0.08,
+      child: Stack(
+        children: [
+          for (int row = 0; row < 12; row++)
+            for (int col = 0; col < 6; col++)
+              _buildIconPattern(row, col),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIconPattern(int row, int col) {
+    const double horizontalSpacing = 70.0;
+    const double verticalSpacing = 65.0;
+    const double startX = 25.0;
+    const double startY = 40.0;
+
+    final List<IconData> foodIcons = [
+      Icons.restaurant,
+      Icons.local_pizza,
+      Icons.rice_bowl,
+      Icons.coffee,
+      Icons.cake,
+      Icons.lunch_dining,
+      Icons.fastfood,
+      Icons.icecream,
+      Icons.local_dining,
+      Icons.breakfast_dining,
+      Icons.dinner_dining,
+      Icons.bakery_dining,
+      Icons.set_meal,
+      Icons.ramen_dining,
+      Icons.egg_alt,
+      Icons.local_bar,
+    ];
+
+    double x = startX + (col * horizontalSpacing);
+    double y = startY + (row * verticalSpacing);
+
+    if (row % 2 == 1) {
+      x += horizontalSpacing / 2;
+    }
+
+    int iconIndex = (row * 6 + col) % foodIcons.length;
+    double iconSize =
+        (row + col) % 3 == 0 ? 32 : (row + col) % 3 == 1 ? 28 : 30;
+
+    return Positioned(
+      left: x,
+      top: y,
+      child: Transform.rotate(
+        angle: (row + col) % 4 * 0.1,
+        child: Container(
+          width: iconSize + 8,
+          height: iconSize + 8,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(
+            foodIcons[iconIndex],
+            size: iconSize,
+            color: Colors.white,
           ),
         ),
       ),
