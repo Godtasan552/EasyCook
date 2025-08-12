@@ -835,7 +835,7 @@ class _HomeScreenState extends State<HomeScreen> {
             if (Get.key.currentState?.canPop() ?? false) {
               Get.back(); // กลับหน้าก่อนหน้า
             } else {
-              Get.offAllNamed('/home'); // ถ้าไม่มีหน้าก่อนหน้า ไปหน้า home แทน
+              Get.offAllNamed('/brk'); // ถ้าไม่มีหน้าก่อนหน้า ไปหน้า brk แทน
             }
           },
         ),
