@@ -27,25 +27,40 @@ class AppTranslations extends Translations {
       'clear_all': 'Clear All',
       'add': 'Add',
       'remove_all': 'Remove All',
+      'add_filters': 'Add Filters',
+      'filters_count': '@count filters',
       
       // Sections
       'ingredients_section': 'Ingredients',
       'instructions_section': 'Instructions',
       'cooking_steps': 'Cooking Steps',
       'watch_video': 'Watch Video Tutorial',
-      'step': 'Step',
+      'step': 'Step @number',
       
       // Filter
       'meal_filter': 'Meal Filter',
       'food_category': 'Food Category',
       'country': 'Country',
       'all': 'All',
+      'advanced_options': 'Advanced Options',
       
       // Allergy
       'allergy_management': 'Allergy Management',
       'add_allergy': 'Add Allergy',
       'allergy_hint': 'e.g. peanut, milk, egg',
       'no_allergies': 'No Allergies',
+      
+      // Common allergies
+      'peanuts': 'Peanuts',
+      'tree_nuts': 'Tree Nuts',
+      'milk': 'Milk',
+      'eggs': 'Eggs',
+      'fish': 'Fish',
+      'shellfish': 'Shellfish',
+      'soy': 'Soy',
+      'wheat': 'Wheat',
+      'sesame': 'Sesame',
+      'gluten': 'Gluten',
       
       // Results
       'search_results': 'Search Results',
@@ -60,6 +75,7 @@ class AppTranslations extends Translations {
       // Loading
       'loading_ingredients': 'Searching by ingredients...',
       'loading_name': 'Searching by name...',
+      'loading_translations': 'Loading translations...',
       
       // Categories
       'beef': 'Beef',
@@ -80,14 +96,30 @@ class AppTranslations extends Translations {
       'british': 'British',
       'canadian': 'Canadian',
       'chinese': 'Chinese',
+      'croatian': 'Croatian',
+      'dutch': 'Dutch',
+      'egyptian': 'Egyptian',
       'french': 'French',
+      'greek': 'Greek',
       'indian': 'Indian',
+      'irish': 'Irish',
       'italian': 'Italian',
+      'jamaican': 'Jamaican',
       'japanese': 'Japanese',
+      'kenyan': 'Kenyan',
+      'malaysian': 'Malaysian',
       'mexican': 'Mexican',
+      'moroccan': 'Moroccan',
+      'polish': 'Polish',
+      'portuguese': 'Portuguese',
+      'russian': 'Russian',
+      'spanish': 'Spanish',
       'thai': 'Thai',
+      'tunisian': 'Tunisian',
       'turkish': 'Turkish',
+      'ukrainian': 'Ukrainian',
       'vietnamese': 'Vietnamese',
+      'unknown': 'Unknown',
       
       // Errors
       'error': 'Error',
@@ -97,12 +129,20 @@ class AppTranslations extends Translations {
       'allergy_already_exists': 'This allergy already exists',
       'allergy_added': 'Allergy added: @allergy',
       'all_allergies_removed': 'All allergies removed',
+      'search_meal_error': 'Error searching meals',
+      'random_meal_error': 'Error loading random meal',
+      'filter_meal_error': 'Error filtering meals',
       
       // Settings
       'settings': 'Settings',
       'language': 'Language',
       'english': 'English',
       'thai': 'ไทย',
+      
+      // Navigation
+      'back': 'Back',
+      'home': 'Home',
+      'menu': 'Menu',
     },
     
     'th_TH': {
@@ -128,25 +168,40 @@ class AppTranslations extends Translations {
       'clear_all': 'ล้างทั้งหมด',
       'add': 'เพิ่ม',
       'remove_all': 'ลบทั้งหมด',
+      'add_filters': 'เพิ่มตัวกรอง',
+      'filters_count': '@count ตัวกรอง',
       
       // Sections
       'ingredients_section': 'ส่วนผสม',
       'instructions_section': 'วิธีทำ',
       'cooking_steps': 'ขั้นตอนการทำอาหาร',
       'watch_video': 'ดูวิดีโอสอนทำ',
-      'step': 'ขั้นตอนที่',
+      'step': 'ขั้นตอนที่ @number',
       
       // Filter
       'meal_filter': 'ตัวกรองเมนูอาหาร',
       'food_category': 'หมวดหมู่อาหาร',
       'country': 'ประเทศ',
       'all': 'ทั้งหมด',
+      'advanced_options': 'ตัวเลือกขั้นสูง',
       
       // Allergy
       'allergy_management': 'จัดการอาหารที่แพ้',
       'add_allergy': 'เพิ่มอาหารที่แพ้',
       'allergy_hint': 'เช่น ถั่วลิสง, นม, ไข่',
       'no_allergies': 'ไม่มีอาหารที่แพ้',
+      
+      // Common allergies
+      'peanuts': 'ถั่วลิสง',
+      'tree_nuts': 'ถั่วต้นไม้',
+      'milk': 'นม',
+      'eggs': 'ไข่',
+      'fish': 'ปลา',
+      'shellfish': 'หอยและปู',
+      'soy': 'ถั่วเหลือง',
+      'wheat': 'ข้าวสาลี',
+      'sesame': 'งา',
+      'gluten': 'กลูเตน',
       
       // Results
       'search_results': 'ผลการค้นหา',

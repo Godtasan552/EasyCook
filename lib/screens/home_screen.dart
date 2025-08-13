@@ -145,6 +145,24 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  /// ฟังก์ชันสำหรับเปลี่ยนภาษาและแปลใหม่
+  void _changeLanguage(String languageCode) async {
+    // เปลี่ยน locale
+    if (languageCode == 'th') {
+      Get.updateLocale(const Locale('th', 'TH'));
+    } else {
+      Get.updateLocale(const Locale('en', 'US'));
+    }
+    
+    // เคลียร์ cache การแปล
+    if (Get.isRegistered<TranslationService>()) {
+      TranslationService.to.clearCache();
+    }
+    
+    // แปลเมนูที่มีอยู่ใหม่
+    await mealController.refreshTranslations();
+  }
+
   Widget _buildBackgroundPattern() {
     return Opacity(
       opacity: 0.08,
@@ -186,10 +204,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildSearchBar() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      height: 48, // Increased height from 40 to 48
+      height: 48,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24), // Slightly larger border radius
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 6, offset: const Offset(0, 1)),
         ],
@@ -198,13 +216,13 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           // Search Mode Toggle
           Container(
-            width: 90, // Slightly wider for better touch area
+            width: 90,
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: DropdownButton<String>(
               value: _searchMode,
               isExpanded: true,
               underline: const SizedBox(),
-              style: const TextStyle(fontSize: 14, color: Colors.black), // Increased font size
+              style: const TextStyle(fontSize: 14, color: Colors.black),
               items: [
                 DropdownMenuItem(value: 'ingredients', child: Text('ingredients'.tr, style: TextStyle(fontSize: 14))),
                 DropdownMenuItem(value: 'name', child: Text('meal_name'.tr, style: TextStyle(fontSize: 14))),
@@ -221,24 +239,24 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: TextField(
               controller: searchController,
-              style: const TextStyle(fontSize: 15), // Increased font size
+              style: const TextStyle(fontSize: 15),
               decoration: InputDecoration(
                 hintText: _searchMode == 'ingredients' ? 'search_ingredients_hint'.tr : 'search_name_hint'.tr,
-                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14), // Increased hint font size
+                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14), // Adjusted padding
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
               ),
               onSubmitted: (value) => _searchMeals(),
             ),
           ),
           // Search Button
           IconButton(
-            icon: Icon(Icons.search, size: 20, color: primaryColor), // Increased icon size
+            icon: Icon(Icons.search, size: 20, color: primaryColor),
             onPressed: _searchMeals,
           ),
           // Options Button
           IconButton(
-            icon: Icon(Icons.tune, size: 20, color: primaryColor), // Increased icon size
+            icon: Icon(Icons.tune, size: 20, color: primaryColor),
             onPressed: () => _showOptionsBottomSheet(),
           ),
         ],
@@ -525,12 +543,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         PopupMenuButton<String>(
                           icon: Icon(Icons.language, color: Colors.white, size: 20),
-                          onSelected: (languageCode) {
-                            Get.updateLocale(Locale(languageCode == 'th' ? 'th' : 'en', languageCode == 'th' ? 'TH' : 'US'));
-                            if (Get.isRegistered<TranslationService>()) {
-                              TranslationService.to.clearCache();
-                            }
-                          },
+                          onSelected: (languageCode) => _changeLanguage(languageCode),
                           itemBuilder: (context) => [
                             PopupMenuItem(value: 'en', child: Text('english'.tr, style: TextStyle(fontSize: 12))),
                             PopupMenuItem(value: 'th', child: Text('thai'.tr, style: TextStyle(fontSize: 12))),
