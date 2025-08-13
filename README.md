@@ -17,16 +17,24 @@ lib/
 ├── screens/
 │   ├── home_screen.dart
 │   ├── detail.dart
+|	├── splash_sceens.dart
 │   └── brk.dart (Breaking/Welcome screen)
+|	
 ├── widgets/
 │   └── meal_card.dart
 ├── services/
 │   ├── api_service.dart
 │   └── translation_service.dart
 ├── routes/
+|	├── app_routers.dart
 │   └── app_pages.dart
-└── localization/
-    └── messages.dart
+├── theme/
+|	└── app_theme.dart
+├── utils/
+|	├── app_translations.dart
+|	└── navigation_helper.dart
+├── widgets
+|	└── meal_card.dart
 ```
 
 ---
