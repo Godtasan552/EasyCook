@@ -139,7 +139,22 @@ class Meal {
   /// Get category based on current locale
   String? get displayCategory {
     if (Get.locale?.languageCode == 'th' && strCategory != null) {
-      return strCategory!.tr; // ใช้ GetX translation
+      // ใช้ static dictionary แทนการเรียก API
+      final categoryMap = {
+        'Beef': 'เนื้อวัว',
+        'Chicken': 'ไก่',
+        'Dessert': 'ของหวาน',
+        'Lamb': 'เนื้อแกะ',
+        'Miscellaneous': 'อื่นๆ',
+        'Pasta': 'พาสต้า',
+        'Pork': 'หมู',
+        'Seafood': 'อาหารทะเล',
+        'Side': 'จานเคียง',
+        'Starter': 'จานเปิด',
+        'Vegan': 'เจ',
+        'Vegetarian': 'มังสวิรัติ',
+      };
+      return categoryMap[strCategory] ?? strCategory;
     }
     return strCategory;
   }
@@ -147,19 +162,116 @@ class Meal {
   /// Get area based on current locale
   String? get displayArea {
     if (Get.locale?.languageCode == 'th' && strArea != null) {
-      return strArea!.toLowerCase().tr; // ใช้ GetX translation
+      // ใช้ static dictionary แทนการเรียก API
+      final areaMap = {
+        'American': 'อเมริกัน',
+        'British': 'อังกฤษ',
+        'Canadian': 'แคนาดา',
+        'Chinese': 'จีน',
+        'Croatian': 'โครเอเชีย',
+        'Dutch': 'เนเธอร์แลนด์',
+        'Egyptian': 'อียิปต์',
+        'French': 'ฝรั่งเศส',
+        'Greek': 'กรีก',
+        'Indian': 'อินเดีย',
+        'Irish': 'ไอร์แลนด์',
+        'Italian': 'อิตาลี',
+        'Jamaican': 'จาเมกา',
+        'Japanese': 'ญี่ปุ่น',
+        'Kenyan': 'เคนยา',
+        'Malaysian': 'มาเลเซีย',
+        'Mexican': 'เม็กซิกัน',
+        'Moroccan': 'โมร็อกโก',
+        'Polish': 'โปแลนด์',
+        'Portuguese': 'โปรตุเกส',
+        'Russian': 'รัสเซีย',
+        'Spanish': 'สเปน',
+        'Thai': 'ไทย',
+        'Tunisian': 'ตูนิเซีย',
+        'Turkish': 'ตุรกี',
+        'Ukrainian': 'ยูเครน',
+        'Unknown': 'ไม่ระบุ',
+        'Vietnamese': 'เวียดนาม',
+      };
+      return areaMap[strArea] ?? strArea;
     }
     return strArea;
   }
 
   /// Initialize translations (call this after creating the meal object)
   Future<void> initializeTranslations() async {
-    if (Get.locale?.languageCode == 'th') {
-      // Pre-load translations
-      _thaiMealName = await TranslationService.to.translateMealName(strMeal);
-      _thaiIngredients = await TranslationService.to.translateIngredients(ingredients);
-      _thaiInstructions = await TranslationService.to.translateInstructions(strInstructions);
+    if (Get.locale?.languageCode == 'th' && Get.isRegistered<TranslationService>()) {
+      try {
+        // Pre-load translations
+        _thaiMealName = await TranslationService.to.translateMealName(strMeal);
+        _thaiIngredients = await TranslationService.to.translateIngredients(ingredients);
+        _thaiInstructions = await TranslationService.to.translateInstructions(strInstructions);
+      } catch (e) {
+        print('Error initializing translations: $e');
+        // ถ้าแปลไม่สำเร็จ ใช้ fallback dictionary
+        _thaiMealName = _getFromDictionary(strMeal);
+        _thaiIngredients = ingredients.map((ing) => _getFromDictionary(ing)).toList();
+        _thaiInstructions = strInstructions; // คงเดิมถ้าแปลไม่ได้
+      }
     }
+  }
+
+  /// Fallback dictionary for common ingredients
+  String _getFromDictionary(String text) {
+    final dictionary = {
+      // อาหารหลัก
+      'chicken': 'ไก่',
+      'beef': 'เนื้อวัว',
+      'pork': 'หมู',
+      'fish': 'ปลา',
+      'shrimp': 'กุ้ง',
+      'egg': 'ไข่',
+      'rice': 'ข้าว',
+      'noodles': 'ก๋วยเตี๋ยว',
+      
+      // ผัก
+      'onion': 'หัวหอม',
+      'garlic': 'กระเทียม',
+      'tomato': 'มะเขือเทศ',
+      'carrot': 'แครอท',
+      'potato': 'มันฝรั่ง',
+      'cabbage': 'กะหล่ำปลี',
+      'lettuce': 'ผักกาดหอม',
+      'ginger': 'ขิง',
+      'lemon': 'มะนาว',
+      'lime': 'มะนาว',
+      'coconut milk': 'กะทิ',
+      
+      // เครื่องเทศ
+      'salt': 'เกลือ',
+      'pepper': 'พริกไทย',
+      'sugar': 'น้ำตาล',
+      'oil': 'น้ำมัน',
+      'soy sauce': 'ซอสถั่วเหลือง',
+      'vinegar': 'น้ำส้มสายชู',
+      'fish sauce': 'น้ำปลา',
+      'oyster sauce': 'น้ำมันหอย',
+      
+      // เมนูไทยยอดนิยม
+      'Pad Thai': 'ผัดไทย',
+      'Tom Yum': 'ต้มยำ',
+      'Green Curry': 'แกงเขียวหวาน',
+      'Massaman Curry': 'แกงมัสมั่น',
+      'Som Tam': 'ส้มตำ',
+      'Mango Sticky Rice': 'ข้าวเหนียวมะม่วง',
+      'Thai Fried Rice': 'ข้าวผัดไทย',
+      'Papaya Salad': 'ส้มตำ',
+    };
+    
+    // ตรวจหาคำที่ตรงกัน (case insensitive)
+    final lowerText = text.toLowerCase();
+    for (final entry in dictionary.entries) {
+      if (lowerText.contains(entry.key.toLowerCase())) {
+        return entry.value;
+      }
+    }
+    
+    return text; // คืนค่าเดิมถ้าไม่พบใน dictionary
   }
 
   /// Get formatted ingredients with measurements
@@ -198,6 +310,15 @@ class Meal {
       }
     }
     return formatted;
+  }
+
+  /// Clear cached translations (ใช้เมื่อเปลี่ยนภาษา)
+  void clearTranslations() {
+    _thaiMealName = null;
+    _thaiIngredients = null;
+    _thaiInstructions = null;
+    _thaiCategory = null;
+    _thaiArea = null;
   }
 
   @override

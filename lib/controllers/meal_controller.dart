@@ -1,3 +1,4 @@
+// controllers/meal_controller.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -5,12 +6,30 @@ import 'package:http/http.dart' as http;
 
 import '../models/meal.dart';
 import '../services/api_service.dart';
+import '../services/translation_service.dart';
 
 class MealController extends GetxController {
   final ApiService _apiService = ApiService();
 
   var meals = <Meal>[].obs;
   var loading = false.obs;
+
+  /// ช่วยฟังก์ชันสำหรับแปลภาษา Meal ทั้งหมด
+  Future<void> _translateMealsIfNeeded(List<Meal> mealsList) async {
+    if (Get.locale?.languageCode == 'th') {
+      for (Meal meal in mealsList) {
+        await meal.initializeTranslations();
+        
+        // แปล measurements ด้วย
+        for (int i = 0; i < meal.measurements.length; i++) {
+          final text = meal.measurements[i];
+          if (text.isNotEmpty) {
+            meal.measurements[i] = await TranslationService.to.translateToThai(text);
+          }
+        }
+      }
+    }
+  }
 
   /// ค้นหาอาหารที่มีส่วนผสมทุกตัวใน ingredients และกรอง excludeIngredients
   Future<void> searchMeals(List<String> ingredients, List<String> excludeIngredients) async {
@@ -31,6 +50,7 @@ class MealController extends GetxController {
       final searchResults = await _apiService.searchMealsByName(name);
 
       if (excludeIngredients.isEmpty) {
+        await _translateMealsIfNeeded(searchResults);
         meals.value = searchResults;
         return;
       }
@@ -44,12 +64,13 @@ class MealController extends GetxController {
         );
       }).toList();
 
+      await _translateMealsIfNeeded(filteredMeals);
       meals.value = filteredMeals;
     } catch (e) {
       meals.value = [];
       Get.snackbar(
-        'Error',
-        'ไม่สามารถค้นหาเมนูได้: $e',
+        'error'.tr,
+        'search_meal_error'.tr + ': $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red[600],
         colorText: Colors.white,
@@ -108,12 +129,13 @@ class MealController extends GetxController {
         }).toList();
       }
 
+      await _translateMealsIfNeeded(intersectMeals);
       meals.value = intersectMeals;
     } catch (e) {
       meals.value = [];
       Get.snackbar(
-        'Error',
-        'ไม่สามารถค้นหาเมนูได้: $e',
+        'error'.tr,
+        'search_meal_error'.tr + ': $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red[600],
         colorText: Colors.white,
@@ -135,12 +157,18 @@ class MealController extends GetxController {
       final meal = await _apiService.fetchRandomMeal(
         excludeIngredients: excludeIngredients.isEmpty ? null : excludeIngredients,
       );
-      meals.value = meal != null ? [meal] : [];
+      
+      if (meal != null) {
+        await _translateMealsIfNeeded([meal]);
+        meals.value = [meal];
+      } else {
+        meals.value = [];
+      }
     } catch (e) {
       meals.value = [];
       Get.snackbar(
-        'Error',
-        'ไม่สามารถโหลดเมนูสุ่มได้: $e',
+        'error'.tr,
+        'random_meal_error'.tr + ': $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red[600],
         colorText: Colors.white,
@@ -199,11 +227,12 @@ class MealController extends GetxController {
         if (i > count * 5) break;
       }
 
+      await _translateMealsIfNeeded(randomMeals);
       meals.addAll(randomMeals);
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'ไม่สามารถโหลดเมนูสุ่มได้: $e',
+        'error'.tr,
+        'random_meal_error'.tr + ': $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red[600],
         colorText: Colors.white,
@@ -265,18 +294,43 @@ class MealController extends GetxController {
         }).toList();
       }
 
+      await _translateMealsIfNeeded(filteredMeals);
       meals.value = filteredMeals;
     } catch (e) {
       meals.value = [];
       Get.snackbar(
-        'Error',
-        'ไม่สามารถใช้ตัวกรองได้: $e',
+        'error'.tr,
+        'filter_meal_error'.tr + ': $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red[600],
         colorText: Colors.white,
       );
       print('Error filtering meals: $e');
     } finally {
+      loading.value = false;
+    }
+  }
+
+  /// เคลียร์เมนูและแปลใหม่เมื่อเปลี่ยนภาษา
+  Future<void> refreshTranslations() async {
+    if (meals.isNotEmpty) {
+      loading.value = true;
+      
+      // เคลียร์ cache การแปล
+      if (Get.isRegistered<TranslationService>()) {
+        TranslationService.to.clearCache();
+      }
+      
+      // เคลียร์การแปลใน Meal objects
+      for (Meal meal in meals) {
+        meal.clearTranslations(); // เพิ่มฟังก์ชันนี้ใน Meal model
+      }
+      
+      // แปลใหม่
+      await _translateMealsIfNeeded(meals.toList());
+      
+      // Update UI
+      meals.refresh();
       loading.value = false;
     }
   }
